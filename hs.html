@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>NEW SHUTTING GAME(ENEMY IS EIRIAN)</title>
+    <script type="text/javascript">
+    // TODO:全体的にコメントが足りてない
+    // TODO:画像が全て書き直しが必要。無料のツールで作成したために、コピー防止のロゴが入っている。
+    const NUM = 10;
+    var unitType = new Array(10);
+    var unitX = new Array(10);
+    var unitY = new Array(10);
+    var ctx;
+    const TOPX_SIZE = 10;
+    const TOPY_SIZE = 10;
+    const MERGIN = 10;
+    var pressedKey = 0;
+    const CURSOR_START_X = 0;
+    const CURSOR_START_Y = 0;
+    var nowCursorX = 0;
+    var nowCursorY = 0;
+    var messageWindowCtx;
+    var messageWindow = new Array(5);
+    var gameLevel = 0;
+    var MAX_EIRIAN_NUM = 10;
+    var eirianX = new Array(100);
+    var eirianY = new Array(100);
+    var eirianType = new Array(100);
+    var eirianEnabledFlg = new Array(100);
+    var lastCreateEirian = 0;
+
+    function newMessage(message) {
+        messageWindowCtx.beginPath();
+        messageWindowCtx.fillStyle="rgb(255,255,255)";
+        messageWindowCtx.fillRect(0,0,500,120);
+        messageWindowCtx.closePath();
+        messageWindowCtx.stroke();
+
+        //テキスト描画のスタイルを指定する
+        messageWindowCtx.fillStyle = "black";
+        messageWindowCtx.font = "10px 'ＭＳ ゴシック'";
+        messageWindowCtx.textAlign = "left";
+        messageWindowCtx.textBaseline = "top";
+
+        var i;
+        for (i=0;i<5;i++) {
+            messageWindow[i] = messageWindow[i+1];
+        }
+        messageWindow[4] = message;
+        for (i=0;i<5;i++) {
+            messageWindowCtx.fillText(messageWindow[i], 2, i*20+2, 490);
+        }
+    }
+
+    /* デフォルトパラメータの初期化（処理開始の時に必ず１回だけ実行する） */
+    function initializeDefaultParameter() {
+        // エイリアンを初期化
+        for(var i=0; i<MAX_EIRIAN_NUM; i++) {
+            eirianX[i] = 0;
+            eirianY[i] = 0;
+            eirianType[i] = 1;
+            eirianEnabledFlg[i] = 0;
+        }
+        // メッセージウィンドウを初期化
+        messageWindow[0] = " ";
+        messageWindow[1] = " ";
+        messageWindow[2] = " ";
+        messageWindow[3] = " ";
+        messageWindow[4] = " ";
+
+    }
+
+    function init(){
+        // デフォルトパラメータの初期化処理
+        initializeDefaultParameter();
+
+        // コマンドラインによる入力
+        gameLevel = prompt("GAME LEVEL を入力してください。(1 - 10)", gameLevel);
+
+        // 入力値のチェック
+        while(true) {
+            if (gameLevel >= 1 && gameLevel <= 10) {
+                break;
+            }
+            gameLevel = prompt("入力に誤りがあります。GAME LEVEL を再度入力してください。(1 - 10)", gameLevel);
+        }
+
+        // ゲーム用のメインキャンバスを取得
+        var canvas = document.getElementById('main_canvas');
+        if (canvas.getContext){
+            ctx = canvas.getContext('2d');
+            ctx.save();
+        }
+
+        // メッセージ出力用ウィンドウを取得
+        var message_window_canvas = document.getElementById('message_window');
+        if (message_window_canvas.getContext){
+            messageWindowCtx = message_window_canvas.getContext('2d');
+        }
+        // TODO:メッセージの表示が安っぽい。もう少しアニーメーション的にスクロールすべきだ
+        // TODO:メッセージの下側の空白が不要
+        
+        newMessage("ゲームのレベルは[" + gameLevel + "]が設定されました。");
+        newMessage("ゲームを開始します。");
+        ctx.beginPath();
+        ctx.fillStyle="rgb(255,255,255)";
+        ctx.fillRect(0,0,500,500);
+        ctx.closePath();
+        ctx.stroke();
+
+        if (canvas.getContext) {
+            var context = canvas.getContext('2d');
+        }
+
+        if (canvas.getContext){
+            var counter = 0;
+            var innerWhileCond = true;
+            var outerWhileCond = true;
+	    while(outerWhileCond){
+                if(counter > 10) {
+                    outerWhileCond = false;
+                } else {
+                    innerWhileCond = true;
+                }
+                while(innerWhileCond) {
+                    unitX[counter] = Math.floor((Math.random() * 10.0)) + 1;
+                    unitY[counter] = Math.floor((Math.random() * 10.0)) + 1;
+                    unitType[counter] = Math.floor((Math.random() * 12.0)) + 1;
+                    if (counter==0) {
+                        console.log(counter + " unitX[" + unitX[counter]+ "] unitY[" + unitY[counter] + "] unitType[" + unitType[counter] + "]");
+                        innerWhileCond = false;
+                    }
+                    for(var j = 0; j <= counter; j++){
+                        if(unitX[counter] == unitX[j] && unitY[counter] == unitY[j]) {
+                            ;
+                        } else {
+                            console.log(counter + " unitX[" + unitX[counter]+ "] unitY[" + unitY[counter] + "] unitType[" + unitType[counter] + "]");
+                            innerWhileCond = false;
+                        }
+                    }
+                 }
+                 counter++;
+   	    }
+
+            for(var j = 0; j < TOPX_SIZE; j++){
+                for(var k = 0;k < TOPY_SIZE; k++){
+                    drawLeftUp(j, k, 64, 64, 64, MERGIN);
+                    drawRightUp(j, k, 64, 64, 64, MERGIN);
+                    drawLeftDown(j, k, 64, 64, 64, MERGIN);
+                    drawRightDown(j, k, 64, 64, 64, MERGIN);
+                }
+            }
+
+            /* マウスハンドラのイベント取得を開始 */
+            document.onmousemove = getMouseXY;
+            document.onmousedown = getMouseDown;            
+
+            // ------------------------------------------------------------
+            // イベントのリッスンを開始する
+            // ------------------------------------------------------------
+            // イベントリスナーに対応している
+            if (document.addEventListener) {
+
+	        // キーボードを押したときに実行されるイベント
+	        document.addEventListener("keydown" , KeyDownFunc);
+
+                // アタッチイベントに対応している
+            } else if(document.attachEvent) {
+
+	        // キーボードを押したときに実行されるイベント
+	        document.attachEvent("onkeydown" , KeyDownFunc);
+
+            }
+
+　　　　/* 画面表示のシーケンスは200ミリsecごと */
+       // カーソルの移動と、何らかのアニメーションはここで制御
+　　　　setInterval(draw, 200);
+       //TODO:カーソルが点滅すべきだ
+
+       // hiddenでtextボックスを作り第一引数に渡す設計で表示できるはず
+       // http://www.html5.jp/canvas/ref/method/fillText.html
+       // hidden textボックスは配列で５行持ち自動でスクロールさせる関数と
+       // 一番下の行に文字列を入力する関数を用意する
+
+       // todo: DIVタグを打てば<form></form>に定義された項目も取得できる可能性がある
+       // todo: 枠を表示するプログラムは、外だしにしてjsファイルとしたい
+       
+
+    }
+	}
+
+    /* 左上の枠 */
+    function drawLeftUp(j, k, r, g, b, mergin){
+                    ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+                    ctx.beginPath();
+                    ctx.moveTo(j*50, k*50);
+                    ctx.lineTo(j*50+25, k*50);
+                    ctx.closePath();
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(j*50, k*50);
+                    ctx.lineTo(j*50, k*50+25);
+                    ctx.closePath();
+                    ctx.stroke();
+    }
+
+    /* 左下の枠 */
+    function drawLeftDown(j, k, r, g, b){
+                    ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+                    ctx.beginPath();
+                    ctx.moveTo(j*50, k*50+50);
+                    ctx.lineTo(j*50, k*50+25);
+                    ctx.closePath();
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(j*50, k*50+50);
+                    ctx.lineTo(j*50+25, k*50+50);
+                    ctx.closePath();
+                    ctx.stroke();
+    }
+
+    /* 右上の枠 */
+    function drawRightUp(j, k, r, g, b){
+                    ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+                    ctx.beginPath();
+                    ctx.moveTo(j*50+50, k*50);
+                    ctx.lineTo(j*50+25, k*50);
+                    ctx.closePath();
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(j*50+50, k*50);
+                    ctx.lineTo(j*50+50, k*50+25);
+                    ctx.closePath();
+                    ctx.stroke();
+    }
+
+    /* 右下の枠 */
+    function drawRightDown(j, k, r, g, b){
+                    ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+                    ctx.beginPath();
+                    ctx.moveTo(j*50+50, k*50+50);
+                    ctx.lineTo(j*50+25, k*50+50);
+                    ctx.closePath();
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(j*50+50, k*50+50);
+                    ctx.lineTo(j*50+50, k*50+25);
+                    ctx.closePath();
+                    ctx.stroke();
+    }
+
+    function draw(){
+        clearUnitsAll();
+        setUnitsAll();
+        createNewEirian();
+        clearEirian();
+        setEirian();
+
+/*	ctx.globalCompositeOperation = "source-over";
+	ctx.fillStyle = "rgba(8,8,12,.1)";
+	ctx.fillRect(0, 0, WIDTH, HEIGHT);
+	ctx.globalCompositeOperation = "lighter";
+
+	for(var i = 0; i < NUM; i++){
+	    //位置を更新
+	    locX[i] += speedX[i];
+	    locY[i] += speedY[i];
+	    
+	    if(locX[i] < 0 || locX[i] > WIDTH){
+		speedX[i] *= -1.0;
+	    }
+
+	    if(locY[i] < 0 || locY[i] > HEIGHT){
+		speedY[i] *= -1.0;
+	    }
+	    
+	    //更新した座標で円を描く
+	    ctx.beginPath();
+	    ctx.fillStyle = 'rgb(' + r[i] + ',' + g[i] + ',' + b[i] + ')';
+            ctx.arc(locX[i], locY[i], radius[i], 0, Math.PI*2.0, true);
+            ctx.fill();
+	}
+*/
+    }
+
+    function getMouseXY(event){
+/*        console.log("screenX[" + event.screenX + "] screenY[" + event.screenY + "] pageX[" + event.pageX + "] pageY[" + event.pageY + "] clientX[" + event.clientX + "] clientY[" + event.clientY + "] offsetX[" + event.offsetX + "] offsetY[" + event.offsetY + "]");
+*/
+    }
+
+    function getMouseDown(event){
+        var check_eirian_hit = 0;
+
+        // 移動前のカーソルを消す
+        ctx.beginPath();
+        ctx.fillStyle="rgb(255,255,255)";
+        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+        ctx.closePath();
+        ctx.stroke();
+
+        var targetCursorX = Math.floor((event.clientX - 8) / 50) + 1;
+        var targetCursorY = Math.floor((event.clientY - 8) / 50) + 1;
+
+        console.log("MOUSE DOWN PRESSED targetCursorX[" + targetCursorX + "] targetCursorY[" + targetCursorY + "] screenX[" + event.screenX + "] screenY[" + event.screenY + "] pageX[" + event.pageX + "] pageY[" + event.pageY + "] clientX[" + event.clientX + "] clientY[" + event.clientY + "] offsetX[" + event.offsetX + "] offsetY[" + event.offsetY + "]");
+
+        nowCursorX = targetCursorX;
+        nowCursorY = targetCursorY;
+
+        /* 味方ユニットの選択状態 */
+        // クリック時
+        // 　選択状態がON
+        // 　　次のクリックで選択されていたユニットが移動する
+        // 　選択状態がOFF
+        // 　　ユニットを選択状態にする（青色）
+        // 連続で同じユニットをクリックした場合は、カーソルは元に戻す。
+        // TODO:選択中（青色）のユニットの画像が必要
+        // TODO:ユニットが移動する時のアニメーションを検討が必要
+        
+        
+        /* 当たり判定 */
+        for (var i=0; i<NUM; i++){
+            if(targetCursorX - 1 == unitX[i]){
+                if(targetCursorY - 1 == unitY[i]){
+                    // 左上のユニット
+/*                    ctx.beginPath();
+                    ctx.fillStyle="rgb(255,32,32)";
+                    ctx.fillRect((targetCursorX - 1) * 50 + 25,targetCursorY * 50 + 25,47,47);
+                    ctx.closePath();
+                    ctx.stroke();*/
+                    check_eirian_hit = 1;
+                }
+                if(targetCursorY == unitY[i]){
+                    // 左のユニット
+/*                    ctx.beginPath();
+                    ctx.fillStyle="rgb(255,32,32)";
+                    ctx.fillRect((targetCursorX - 1) * 50 + 25,targetCursorY * 50 + 25,47,47);
+                    ctx.closePath();
+                    ctx.stroke();*/
+                    check_eirian_hit = 1;
+                }
+                if(targetCursorY + 1 == unitY[i]){
+                    // 左下のユニット
+/*                    ctx.beginPath();
+                    ctx.fillStyle="rgb(255,32,32)";
+                    ctx.fillRect((targetCursorX - 1) * 50 + 25,targetCursorY * 50 + 25,47,47);
+                    ctx.closePath();
+                    ctx.stroke();*/
+                    check_eirian_hit = 1;
+                }
+            }
+            if(targetCursorX == unitX[i]){
+                if(targetCursorY - 1 == unitY[i]){
+                    // 上のユニット
+/*                    ctx.beginPath();
+                    ctx.fillStyle="rgb(255,32,32)";
+                    ctx.fillRect(targetCursorX * 50,targetCursorY * 50 - 25,47,47);
+                    ctx.closePath();
+                    ctx.stroke();*/
+                    check_eirian_hit = 1;
+                }
+                if(targetCursorY + 1 == unitY[i]){
+                    // 下のユニット
+/*                    ctx.beginPath();
+                    ctx.fillStyle="rgb(255,32,32)";
+                    ctx.fillRect(targetCursorX * 50,targetCursorY * 50 + 25,47,47);
+                    ctx.closePath();
+                    ctx.stroke();*/
+                    check_eirian_hit = 1;
+                }
+            }
+            if(targetCursorX + 1 == unitX[i]){
+                if(targetCursorY - 1 == unitY[i]){
+                    // 右上のユニット
+/*                    ctx.beginPath();
+                    ctx.fillStyle="rgb(255,32,32)";
+                    ctx.fillRect((targetCursorX + 1) * 50 - 25,targetCursorY * 50 - 25,47,47);
+                    ctx.closePath();
+                    ctx.stroke();*/
+                    check_eirian_hit = 1;
+                }
+                if(targetCursorY == unitY[i]){
+                    // 右のユニット
+/*                    ctx.beginPath();
+                    ctx.fillStyle="rgb(255,32,32)";
+                    ctx.fillRect((targetCursorX + 1) * 50 - 25,targetCursorY * 50 - 25,47,47);
+                    ctx.closePath();
+                    ctx.stroke();*/
+                    check_eirian_hit = 1;
+                }
+                if(targetCursorY + 1 == unitY[i]){
+                    // 右下のユニット
+/*                    ctx.beginPath();
+                    ctx.fillStyle="rgb(255,32,32)";
+                    ctx.fillRect((targetCursorX + 1) * 50 - 25,targetCursorY * 50 - 25,47,47);
+                    ctx.closePath();
+                    ctx.stroke();*/
+                    check_eirian_hit = 1;
+                }
+            }
+        }
+        if(check_eirian_hit == 1) {
+            var ret = destroyEirian();
+            if (ret == 1) {
+                // 破壊した場合は、カーソルを赤色に描画
+    	        ctx.beginPath();
+    	        ctx.fillStyle="rgb(255,32,32)";
+    	        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+    	        ctx.closePath();
+    	        ctx.stroke();
+            } else {
+                // 攻撃範囲に的がいなかった場合は通常のカーソルを描画
+    	        ctx.beginPath();
+    	        ctx.fillStyle="rgb(32,32,32)";
+    	        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+    	        ctx.closePath();
+    	        ctx.stroke();
+            }
+        } else {
+            // UNITの攻撃範囲外は通常のカーソルを描画
+	        ctx.beginPath();
+	        ctx.fillStyle="rgb(32,32,32)";
+	        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+	        ctx.closePath();
+	        ctx.stroke();
+        }
+    }
+
+function destroyEirian() {
+    console.log("destoryEirian() start.");
+	for(var i=0; i<MAX_EIRIAN_NUM; i++) {
+        if((eirianX[i] == nowCursorX) && (eirianY[i] == nowCursorY)) {
+            console.log("eirianX[" + i + "]:" + eirianX[i] + " == nowCursorX[" + i + "]:"+ nowCursorX + "]");
+            // エイリアンは破壊されるので無効状態になる
+            eirianEnabledFlg[i] = 0;
+            newMessage("座標：X[" + nowCursorX + "] Y[" + nowCursorY + "]のエイリアンを破壊しました。");
+            return 1; // 破壊
+        }
+    }   
+	return 0; // 破壊しなかった
+	// todo:敵を破壊した音が必要
+}
+
+// ------------------------------------------------------------
+// キーボードを押したときに実行される関数
+// ------------------------------------------------------------
+function KeyDownFunc(e){
+
+	// ------------------------------------------------------------
+	// 入力情報を取得
+	// ------------------------------------------------------------
+	// キーコード
+	var key_code = e.keyCode;
+	// Shiftキーの押下状態
+	var shift_key = e.shiftKey;
+	// Ctrlキーの押下状態
+	var ctrl_key = e.ctrlKey;
+	// Altキーの押下状態
+	var alt_key = e.altKey;
+
+	// ------------------------------------------------------------
+	// 出力テスト
+	// ------------------------------------------------------------
+        console.log("code:" + key_code);
+        pressedKey = key_code;
+
+      CursorDraw();
+      CommandInput();
+}
+
+function CommandInput()
+{
+	// キーボードよりsもしくはSが入力された場合、敵のステータス情報をコンソールに出力する。
+	if (pressedKey == 83 || pressedKey == 115) {
+		console.log("MAX_EIRIAN_NUM[" + MAX_EIRIAN_NUM + "]");
+		for (var i=0; i< MAX_EIRIAN_NUM; i++) {
+			console.log("EIRIAN[" + i + "] X:" + eirianX[i] + " Y:" + eirianY[i] + " TYPE:" + eirianType[i] + " eirianEnabledFlg:" + eirianEnabledFlg[i]);
+		}	
+	}
+}
+
+function CursorDraw()
+{
+         // 移動前のカーソルを消す
+         ctx.beginPath();
+         ctx.fillStyle="rgb(255,255,255)";
+         ctx.fillRect(nowCursorX*50+2,nowCursorY*50+2,47,47);
+         ctx.closePath();
+         ctx.stroke();
+
+	if (pressedKey == 98 || pressedKey == 38) { 
+            nowCursorY = nowCursorY + 1;
+        }
+	if (pressedKey == 104 || pressedKey == 40) { 
+             nowCursorY = nowCursorY - 1;
+         }
+	if (pressedKey == 100 || pressedKey == 37) { 
+             nowCursorX = nowCursorX - 1;
+         }
+	if (pressedKey == 102 || pressedKey == 39) { 
+             nowCursorX = nowCursorX + 1;
+         }
+         pressedKey = 0;
+         console.log(nowCursorX.toString(10));
+         console.log(nowCursorY.toString(10));
+         ctx.beginPath();
+         ctx.fillStyle="rgb(32,32,32)";
+         ctx.fillRect(nowCursorX*50+2,nowCursorY*50+2,47,47);
+         ctx.closePath();
+         ctx.stroke();
+}
+function clearUnitsAll(){
+    for(var i=0;i<NUM;i++) {
+        ctx.beginPath();
+        ctx.fillStyle="rgb(155,255,255)";
+        ctx.fillRect((unitX[i]-1)*50+2, (unitY[i]-1)*50+2,47,47);
+        ctx.closePath();
+        ctx.stroke();
+    }            
+}
+
+function setUnitsAll(){
+    for(var i=0;i<NUM;i++) {
+        var img = new Image();
+        if(unitType[i] == 0){
+            img.src="UNIT_LV01.gif";
+        } else if(unitType[i] == 1){
+            img.src="UNIT_LV02.gif";
+        } else if(unitType[i] == 2){
+            img.src="UNIT_LV03.gif";
+        } else if(unitType[i] == 3){
+            img.src="UNIT_LV02.gif";
+        } else if(unitType[i] == 4){
+            img.src="TUNK_SENSYA_LV01.gif";
+        } else if(unitType[i] == 5){
+            img.src="TUNK_SENSYA_LV02.gif";
+        } else if(unitType[i] == 6){
+            img.src="TUNK_SENSYA_LV03.gif";
+        } else if(unitType[i] == 7){
+            img.src="TUNK_ROCKET_LV01.gif";
+        } else if(unitType[i] == 8){
+            img.src="TUNK_ROCKET_LV02.gif";
+        } else if(unitType[i] == 9){
+            img.src="TUNK_ROCKET_LV03.gif";
+        } else if(unitType[i] == 10){
+            img.src="FIGHTER_LV01.gif";
+        } else if(unitType[i] == 11){
+            img.src="FIGHTER_LV02.gif";
+        } else if(unitType[i] == 12){
+            img.src="FIGHTER_LV03.gif";
+        }
+        ctx.drawImage(img,(unitX[i]-1)*50+2,(unitY[i]-1)*50+2,47,47);
+    }
+}
+
+/**
+ * 新しいエイリアンを追加する。
+ *
+ * TODO: エイリアン同士は排他制御に成功しているが、ユニットのあるマスにエイリアンが出力できてしまう。
+ *
+ */
+function createNewEirian() {
+    var check_counter = 0; // 全てのエイリアン有効無効フラグが無効(0)になっている場合をチェック
+    var counter = lastCreateEirian;
+    var outerWhileCond = true;
+    while(outerWhileCond){
+        if (counter > MAX_EIRIAN_NUM) {
+            counter = 0;
+        }
+        // エイリアン有効無効フラグが無効(0)の場合は空き領域
+        if (eirianEnabledFlg[counter] == 0) {
+            // データの検査結果が有効ならエイリアン追加するループを抜ける
+            outerWhileCond = false;
+            eirianX[counter] = Math.floor((Math.random() * 10.0)) + 1;
+            eirianY[counter] = Math.floor((Math.random() * 10.0)) + 1;
+//          eirianType[counter] = Math.floor((Math.random() * 12.0)) + 1;
+
+            for(var i = 0; i <= MAX_EIRIAN_NUM; i++){
+                if(counter != i) {
+                    // 既に他のエイリアンがその場所を埋めている場合はループを抜けて、違う場所を取得
+                    if((eirianX[counter] == eirianX[i]) && (eirianY[counter] == eirianY[i])) {
+                        i = MAX_EIRIAN_NUM;
+                        outerWhileCond = true; // 検査結果がＮＧなので再びエイリアンを追加するループを回す
+                    } 
+                }
+            }
+            // 検査結果がＯＫの場合はエイリアンを有効(1)にする。
+            if (!outerWhileCond) {
+                // エイリアンは有効状態
+                eirianEnabledFlg[counter] = 1;
+            }
+        } else {
+            // エイリアン有効無効フラグが有効(1)の場合は使用中の領域
+            counter++; // 次の領域が使えるか？
+            check_counter++; // ループ回数も加算
+        }
+        if (check_counter >= MAX_EIRIAN_NUM) {
+            var outerWhileCond = false; // 全てのエイリアンは無効
+        }
+    }
+}
+function clearEirian() {
+    for(var i=0;i<=MAX_EIRIAN_NUM;i++) {
+        ctx.beginPath();
+        ctx.fillStyle="rgb(32,32,32)";
+        ctx.fillRect((eirianX[i]-1)*50+2,(eirianY[i]-1)*50+2,47,47);
+        ctx.closePath();
+        ctx.stroke();
+    }    
+}
+function setEirian() {
+    var img = new Image();
+    img.src="EIRIAN_LV01.gif";
+
+    for(var i=0;i<=MAX_EIRIAN_NUM;i++) {
+        // エイリアン有効無効フラグが無効(1)の場合は利用中（描画が必要）
+        if (eirianEnabledFlg[i] == 1) {
+            ctx.drawImage(img,(eirianX[i]-1)*50+2,(eirianY[i]-1)*50+2,47,47);
+        }
+    }    
+}
+
+    </script>
+
+  </head>
+  <body onLoad="init()" scroll="no" style="overflow:hidden;position:fixed;background-color:#909090;height:650px">
+    <table><tr><td>
+      <div>
+        <canvas id="main_canvas" height="500" width="500"></canvas>
+      </div>
+    </td>
+    <td>
+        <canvas id="side_canvas" height="500" width="500"></canvas>
+    </td>
+    <td></tr>
+    <tr><td>
+      <div>
+        <canvas id="message_window" height="150" width="500"></canvas>
+      </td></tr></div>
+    </table>
+  </body>
+</html>
+
+
+
