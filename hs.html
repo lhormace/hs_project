@@ -2,7 +2,7 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <title>NEW SHUTTING GAME(ENEMY IS EIRIAN)</title>
+    <title>hs_project</title>
     <script type="text/javascript">
     // TODO:全体的にコメントが足りてない
     // TODO:画像が全て書き直しが必要。無料のツールで作成したために、コピー防止のロゴが入っている。
@@ -11,6 +11,7 @@
     var unitX = new Array(10);
     var unitY = new Array(10);
     var ctx;
+    var sideCtx;
     const TOPX_SIZE = 10;
     const TOPY_SIZE = 10;
     const MERGIN = 10;
@@ -28,6 +29,13 @@
     var eirianType = new Array(100);
     var eirianEnabledFlg = new Array(100);
     var lastCreateEirian = 0;
+    
+    // カーソルのステータス
+    // 0 --> 通常の状態
+    // 1 --> 選択した状態
+    // 2 --> ユニットをドラッグした状態
+    // 3 --> ユニットを離した状態（このあとすぐに、ステータスは０になる）
+    var cursorStatus = 0;
 
     function newMessage(message) {
         messageWindowCtx.beginPath();
@@ -50,6 +58,19 @@
         for (i=0;i<5;i++) {
             messageWindowCtx.fillText(messageWindow[i], 2, i*20+2, 490);
         }
+    }
+    
+    function sideCanvasDraw() {
+/*    	sideCtx.beginPath();
+    	sideCtx.fillStyle="rgb(0,0,0)";
+    	sideCtx.fillRect(0,0,150,500);
+    	sideCtx.closePath();
+    	sideCtx.stroke();*/
+    	var img = new Image();
+    	img.src = "./pattern_128.gif";
+    	/* 画像を描画 */
+    	sideCtx.drawImage(img, 0, 0);
+    	
     }
 
     /* デフォルトパラメータの初期化（処理開始の時に必ず１回だけ実行する） */
@@ -92,6 +113,13 @@
             ctx.save();
         }
 
+        // ゲーム用のサイドキャンバスを取得
+        var side_canvas = document.getElementById('side_canvas');
+        if (side_canvas.getContext){
+            sideCtx = side_canvas.getContext('2d');
+            sideCtx.save();
+        }
+
         // メッセージ出力用ウィンドウを取得
         var message_window_canvas = document.getElementById('message_window');
         if (message_window_canvas.getContext){
@@ -102,6 +130,8 @@
         
         newMessage("ゲームのレベルは[" + gameLevel + "]が設定されました。");
         newMessage("ゲームを開始します。");
+        
+        // MAINのCANVASを設定
         ctx.beginPath();
         ctx.fillStyle="rgb(255,255,255)";
         ctx.fillRect(0,0,500,500);
@@ -306,6 +336,41 @@
         nowCursorX = targetCursorX;
         nowCursorY = targetCursorY;
 
+        // カーソルの選択状態を判定する
+        if (cursorStatus == 0) {
+        	// カーソルが通常の状態の場合は、押下した位置にユニットがあるか否かを判定する。
+        	for (var i=0; i<NUM; i++) {
+        		if ((targetCursorX == unitX[i]) && (targetCursorY == unitY[i])) {
+        			// 一致するユニットがあった場合
+        			// 1. 画面右上のユニット情報領域に、ユニットのステータスを表示する
+        			sideCanvasDraw();
+        			// 2. ユニットは選択状態の画像に変更する
+        			
+        			// 3. カーソルも選択状態の色（青色）に変更する
+        			
+        			// 4. ステータスは０(通常)-->1(選択状態)へ変更する
+        			cursorStatus = 1;
+        		}
+        	}
+        }
+        if (cursorStatus == 1) {
+        	// カーソルが選択状態である場合
+        	
+        	// 1. 新たにクリックした場所に、敵が存在していない？
+        	
+        	// 2. 新たにクリックした場所に、味方のユニットが存在している？
+        	
+        	// 3. カーソル位置へ選択済みのユニットを動かす
+        	// 判定方法：ユニットの移動距離はクリアしているか？（ユニットの移動距離の範囲外であれば、エラーを出力する）
+        	
+        	// 4. ユニットの画像を変更する。（任意の場所に動く）
+        	
+        	// 5. カーソルを元に戻す
+        	cursorStatus = 0;
+        	// 6. ステータスからは消えるのではないか？
+        	
+        }
+        
         /* 味方ユニットの選択状態 */
         // クリック時
         // 　選択状態がON
@@ -480,33 +545,41 @@ function CommandInput()
 
 function CursorDraw()
 {
-         // 移動前のカーソルを消す
-         ctx.beginPath();
-         ctx.fillStyle="rgb(255,255,255)";
-         ctx.fillRect(nowCursorX*50+2,nowCursorY*50+2,47,47);
-         ctx.closePath();
-         ctx.stroke();
+    // 移動前のカーソルを消す
+    ctx.beginPath();
+    ctx.fillStyle="rgb(255,255,255)";
+    ctx.fillRect(nowCursorX*50+2,nowCursorY*50+2,47,47);
+    ctx.closePath();
+    ctx.stroke();
 
-	if (pressedKey == 98 || pressedKey == 38) { 
+	if (pressedKey == 98 || pressedKey == 38) 
+	{ 
             nowCursorY = nowCursorY + 1;
-        }
-	if (pressedKey == 104 || pressedKey == 40) { 
+    }
+	if (pressedKey == 104 || pressedKey == 39) 
+	{ 
              nowCursorY = nowCursorY - 1;
-         }
-	if (pressedKey == 100 || pressedKey == 37) { 
+    }
+	if (pressedKey == 100 || pressedKey == 37) 
+	{ 
              nowCursorX = nowCursorX - 1;
-         }
-	if (pressedKey == 102 || pressedKey == 39) { 
+    }
+	if (pressedKey == 102 || pressedKey == 40) 
+	{ 
              nowCursorX = nowCursorX + 1;
-         }
-         pressedKey = 0;
-         console.log(nowCursorX.toString(10));
-         console.log(nowCursorY.toString(10));
-         ctx.beginPath();
-         ctx.fillStyle="rgb(32,32,32)";
-         ctx.fillRect(nowCursorX*50+2,nowCursorY*50+2,47,47);
-         ctx.closePath();
-         ctx.stroke();
+    }
+    pressedKey = 0;
+    console.log(nowCursorX.toString(10));
+    console.log(nowCursorY.toString(10));
+    ctx.beginPath();
+    ctx.fillStyle="rgb(32,32,32)";
+    if (cursorStatus == 0) {
+    	alert(1);
+    }
+    ctx.fillStyle="rgb(32,32,255)";
+    ctx.fillRect(nowCursorX*50+2,nowCursorY*50+2,47,47);
+    ctx.closePath();
+    ctx.stroke();
 }
 function clearUnitsAll(){
     for(var i=0;i<NUM;i++) {
@@ -622,20 +695,30 @@ function setEirian() {
     </script>
 
   </head>
-  <body onLoad="init()" scroll="no" style="overflow:hidden;position:fixed;background-color:#909090;height:650px">
-    <table><tr><td>
-      <div>
-        <canvas id="main_canvas" height="500" width="500"></canvas>
-      </div>
-    </td>
-    <td>
-        <canvas id="side_canvas" height="500" width="500"></canvas>
-    </td>
-    <td></tr>
-    <tr><td>
-      <div>
-        <canvas id="message_window" height="150" width="500"></canvas>
-      </td></tr></div>
+  <body onLoad="init()" scroll="no" style="overflow:hidden;position:fixed;background-color:#909090;height:650px;">
+    <table style="background-image:url('./pattern_148.gif');">
+      <tr>
+        <td>
+          <div>
+            <canvas id="main_canvas" height="500" width="500"></canvas>
+          </div>
+        </td>
+        <td>
+          <div style="background-image:url('./pattern_128.gif');">
+            <canvas id="side_canvas" height="500" width="150"></canvas>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div>
+            <canvas id="message_window" height="150" width="500"></canvas>
+          </div>
+        </td>
+        <td style="font-size:6pt;background-color:#FFFFFF">
+                <a href="http://www.squidfingers.com/patterns/">http://www.squidfingers.com/patterns/</a>
+        </td>
+      </tr>
     </table>
   </body>
 </html>
