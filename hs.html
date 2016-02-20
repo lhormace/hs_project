@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="utf-8" />
-    <title>hs_project</title>
-    <script type="text/javascript">
+<head>
+<meta charset="utf-8" />
+<title>hs_project</title>
+<script type="text/javascript">
     // TODO:全体的にコメントが足りてない
     // TODO:画像が全て書き直しが必要。無料のツールで作成したために、コピー防止のロゴが入っている。
     const NUM = 10;
@@ -50,8 +50,7 @@
         messageWindowCtx.textAlign = "left";
         messageWindowCtx.textBaseline = "top";
 
-        var i;
-        for (i=0;i<5;i++) {
+        for (var i=0;i<5;i++) {
             messageWindow[i] = messageWindow[i+1];
         }
         messageWindow[4] = message;
@@ -59,8 +58,42 @@
             messageWindowCtx.fillText(messageWindow[i], 2, i*20+2, 490);
         }
     }
+
+    /**
+     * サイドスクリーンをクリア
+     *
+     */
+    function clearCanvasDraw() {
+    	var img = new Image();
+    	img.src = "./pattern_128.gif";
+    	/* 画像を描画 */
+    	sideCtx.drawImage(img, 0, 0);
+    	sideCtx.drawImage(img, 49, 0);
+    	sideCtx.drawImage(img, 98, 0);
+    	sideCtx.drawImage(img, 147, 0);
+    	sideCtx.drawImage(img, 196, 0);
+    	sideCtx.drawImage(img, 0, 98);
+    	sideCtx.drawImage(img, 49, 98);
+    	sideCtx.drawImage(img, 98, 98);
+    	sideCtx.drawImage(img, 147, 98);
+    	sideCtx.drawImage(img, 196, 98);
+    	sideCtx.drawImage(img, 0, 196);
+    	sideCtx.drawImage(img, 49, 196);
+    	sideCtx.drawImage(img, 98, 196);
+    	sideCtx.drawImage(img, 147, 196);
+    	sideCtx.drawImage(img, 196, 196);
+    	sideCtx.drawImage(img, 0, 294);
+    	sideCtx.drawImage(img, 49, 294);
+    	sideCtx.drawImage(img, 98, 294);
+    	sideCtx.drawImage(img, 147, 294);
+    	sideCtx.drawImage(img, 196, 294);
+    }
     
-    function sideCanvasDraw() {
+    /**
+     * サイドスクリーンに選択されたユニットの情報を描画
+     * param: unitNo 選択されたユニットの番号
+     */
+    function sideCanvasDraw(unitNo) {
 /*    	sideCtx.beginPath();
     	sideCtx.fillStyle="rgb(0,0,0)";
     	sideCtx.fillRect(0,0,150,500);
@@ -68,9 +101,36 @@
     	sideCtx.stroke();*/
     	var img = new Image();
     	img.src = "./pattern_128.gif";
+    	
     	/* 画像を描画 */
     	sideCtx.drawImage(img, 0, 0);
-    	
+        sideCtx.beginPath();
+        sideCtx.fillStyle="rgb(255,255,255)";
+        sideCtx.fillRect(0,0,500,300);
+        sideCtx.closePath();
+        sideCtx.stroke();
+
+        //テキスト描画のスタイルを指定する
+        sideCtx.fillStyle = "black";
+        sideCtx.font = "10px 'ＭＳ ゴシック'";
+        sideCtx.textAlign = "left";
+        sideCtx.textBaseline = "top";
+
+        sideCtx.fillText("[" + "*****" + "]",2,10);
+        sideCtx.fillText("X:" + unitX[unitNo],2, 20);
+        sideCtx.fillText("Y:" + unitY[unitNo],2, 30);
+        sideCtx.fillText("NM:",2, 40);
+        sideCtx.fillText("KRM:",2, 50);
+        sideCtx.fillText("HP:",2, 60);
+        sideCtx.fillText("MP:",2, 70);
+        sideCtx.fillText("STR:",2, 80);
+        sideCtx.fillText("INT:",2, 90);
+        sideCtx.fillText("WDM:",2, 100);
+        sideCtx.fillText("DEX",2, 110);
+        sideCtx.fillText("CON:",2, 120);
+        sideCtx.fillText("CRM:",2, 130);
+        sideCtx.fillText("ROL:",2, 140);
+        sideCtx.fillText("KRM:",2, 150);
     }
 
     /* デフォルトパラメータの初期化（処理開始の時に必ず１回だけ実行する） */
@@ -94,7 +154,7 @@
     function init(){
         // デフォルトパラメータの初期化処理
         initializeDefaultParameter();
-
+        
         // コマンドラインによる入力
         gameLevel = prompt("GAME LEVEL を入力してください。(1 - 10)", gameLevel);
 
@@ -146,7 +206,9 @@
             var counter = 0;
             var innerWhileCond = true;
             var outerWhileCond = true;
-	    while(outerWhileCond){
+            
+            // 自軍のユニットを配置する
+		    while(outerWhileCond){
                 if(counter > 10) {
                     outerWhileCond = false;
                 } else {
@@ -170,16 +232,20 @@
                     }
                  }
                  counter++;
-   	    }
+		   	}
 
-            for(var j = 0; j < TOPX_SIZE; j++){
-                for(var k = 0;k < TOPY_SIZE; k++){
-                    drawLeftUp(j, k, 64, 64, 64, MERGIN);
-                    drawRightUp(j, k, 64, 64, 64, MERGIN);
-                    drawLeftDown(j, k, 64, 64, 64, MERGIN);
-                    drawRightDown(j, k, 64, 64, 64, MERGIN);
-                }
-            }
+		    // ゲーム盤の仕切り線（マス目）を作成
+	        for(var j = 0; j < TOPX_SIZE; j++){
+	            for(var k = 0;k < TOPY_SIZE; k++){
+	                drawLeftUp(j, k, 64, 64, 64, MERGIN);
+	                drawRightUp(j, k, 64, 64, 64, MERGIN);
+	                drawLeftDown(j, k, 64, 64, 64, MERGIN);
+	                drawRightDown(j, k, 64, 64, 64, MERGIN);
+	            }
+	        }
+		    
+	        // ゲーム盤の初期化（全て森のマスにする）
+	        drawBackGroundImage();
 
             /* マウスハンドラのイベント取得を開始 */
             document.onmousemove = getMouseXY;
@@ -343,7 +409,7 @@
         		if ((targetCursorX == unitX[i]) && (targetCursorY == unitY[i])) {
         			// 一致するユニットがあった場合
         			// 1. 画面右上のユニット情報領域に、ユニットのステータスを表示する
-        			sideCanvasDraw();
+        			sideCanvasDraw(i);
         			// 2. ユニットは選択状態の画像に変更する
         			
         			// 3. カーソルも選択状態の色（青色）に変更する
@@ -352,8 +418,7 @@
         			cursorStatus = 1;
         		}
         	}
-        }
-        if (cursorStatus == 1) {
+        } else if (cursorStatus == 1) {
         	// カーソルが選択状態である場合
         	
         	// 1. 新たにクリックした場所に、敵が存在していない？
@@ -367,7 +432,10 @@
         	
         	// 5. カーソルを元に戻す
         	cursorStatus = 0;
-        	// 6. ステータスからは消えるのではないか？
+        	
+        	// 6. サイドメニューのステータスは消される
+        	clearCanvasDraw();
+        	
         	
         }
         
@@ -474,19 +542,39 @@
     	        ctx.stroke();
             } else {
                 // 攻撃範囲に的がいなかった場合は通常のカーソルを描画
-    	        ctx.beginPath();
-    	        ctx.fillStyle="rgb(32,32,32)";
-    	        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
-    	        ctx.closePath();
-    	        ctx.stroke();
+                if (cursorStatus == 0) {
+                	// 自軍ユニット未選択状態の場合は、カーソルの色は「黒」でぬりつぶす。
+    		        ctx.beginPath();
+    		        ctx.fillStyle="rgb(32,32,32)";
+    		        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+    		        ctx.closePath();
+    		        ctx.stroke();
+                } else if (cursorStatus == 1) {
+                	// 自軍ユニット未選択状態の場合は、カーソルの色は「青」でぬりつぶす。
+    		        ctx.beginPath();
+    		        ctx.fillStyle="rgb(32,32,255)";
+    		        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+    		        ctx.closePath();
+    		        ctx.stroke();
+                }
             }
         } else {
             // UNITの攻撃範囲外は通常のカーソルを描画
-	        ctx.beginPath();
-	        ctx.fillStyle="rgb(32,32,32)";
-	        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
-	        ctx.closePath();
-	        ctx.stroke();
+            if (cursorStatus == 0) {
+            	// 自軍ユニット未選択状態の場合は、カーソルの色は「黒」でぬりつぶす。
+		        ctx.beginPath();
+		        ctx.fillStyle="rgb(32,32,32)";
+		        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+		        ctx.closePath();
+		        ctx.stroke();
+            } else if (cursorStatus == 1) {
+            	// 自軍ユニット未選択状態の場合は、カーソルの色は「青」でぬりつぶす。
+		        ctx.beginPath();
+		        ctx.fillStyle="rgb(32,32,255)";
+		        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+		        ctx.closePath();
+		        ctx.stroke();
+            }
         }
     }
 
@@ -582,46 +670,58 @@ function CursorDraw()
     ctx.stroke();
 }
 function clearUnitsAll(){
-    for(var i=0;i<NUM;i++) {
-        ctx.beginPath();
-        ctx.fillStyle="rgb(155,255,255)";
-        ctx.fillRect((unitX[i]-1)*50+2, (unitY[i]-1)*50+2,47,47);
-        ctx.closePath();
-        ctx.stroke();
-    }            
+	// カーソルの選択状態が「未選択」でなければユニットの再描画は行わない。
+	// TODO:毎回全部の自軍ユニットを書き直すと重くなるので、必要なものだけを書き直すように設計をしたい。
+	if (cursorStatus == 0) {
+	    for(var i=0;i<NUM;i++) {
+	        ctx.beginPath();
+	        ctx.fillStyle="rgb(155,255,255)";
+	        ctx.fillRect((unitX[i]-1)*50+2, (unitY[i]-1)*50+2,47,47);
+	        ctx.closePath();
+	        ctx.stroke();
+	    }
+	}
 }
 
+/**
+ * 自軍のユニットを全て再描画する 
+ *
+ */
 function setUnitsAll(){
-    for(var i=0;i<NUM;i++) {
-        var img = new Image();
-        if(unitType[i] == 0){
-            img.src="UNIT_LV01.gif";
-        } else if(unitType[i] == 1){
-            img.src="UNIT_LV02.gif";
-        } else if(unitType[i] == 2){
-            img.src="UNIT_LV03.gif";
-        } else if(unitType[i] == 3){
-            img.src="UNIT_LV02.gif";
-        } else if(unitType[i] == 4){
-            img.src="TUNK_SENSYA_LV01.gif";
-        } else if(unitType[i] == 5){
-            img.src="TUNK_SENSYA_LV02.gif";
-        } else if(unitType[i] == 6){
-            img.src="TUNK_SENSYA_LV03.gif";
-        } else if(unitType[i] == 7){
-            img.src="TUNK_ROCKET_LV01.gif";
-        } else if(unitType[i] == 8){
-            img.src="TUNK_ROCKET_LV02.gif";
-        } else if(unitType[i] == 9){
-            img.src="TUNK_ROCKET_LV03.gif";
-        } else if(unitType[i] == 10){
-            img.src="FIGHTER_LV01.gif";
-        } else if(unitType[i] == 11){
-            img.src="FIGHTER_LV02.gif";
-        } else if(unitType[i] == 12){
-            img.src="FIGHTER_LV03.gif";
+	// カーソルの選択状態が「未選択」でなければユニットの再描画は行わない。
+	// TODO:毎回全部の自軍ユニットを書き直すと重くなるので、必要なものだけを書き直すように設計をしたい。
+    if (cursorStatus == 0) {
+        for(var i=0;i<NUM;i++) {
+            var img = new Image();
+            if(unitType[i] == 0){
+                img.src="UNIT_LV01.gif";
+            } else if(unitType[i] == 1){
+                img.src="UNIT_LV02.gif";
+            } else if(unitType[i] == 2){
+                img.src="UNIT_LV03.gif";
+            } else if(unitType[i] == 3){
+                img.src="UNIT_LV02.gif";
+            } else if(unitType[i] == 4){
+                img.src="TUNK_SENSYA_LV01.gif";
+            } else if(unitType[i] == 5){
+                img.src="TUNK_SENSYA_LV02.gif";
+            } else if(unitType[i] == 6){
+                img.src="TUNK_SENSYA_LV03.gif";
+            } else if(unitType[i] == 7){
+                img.src="TUNK_ROCKET_LV01.gif";
+            } else if(unitType[i] == 8){
+                img.src="TUNK_ROCKET_LV02.gif";
+            } else if(unitType[i] == 9){
+                img.src="TUNK_ROCKET_LV03.gif";
+            } else if(unitType[i] == 10){
+                img.src="FIGHTER_LV01.gif";
+            } else if(unitType[i] == 11){
+                img.src="FIGHTER_LV02.gif";
+            } else if(unitType[i] == 12){
+                img.src="FIGHTER_LV03.gif";
+            }
+            ctx.drawImage(img,(unitX[i]-1)*50+2,(unitY[i]-1)*50+2,47,47);
         }
-        ctx.drawImage(img,(unitX[i]-1)*50+2,(unitY[i]-1)*50+2,47,47);
     }
 }
 
@@ -682,6 +782,7 @@ function clearEirian() {
 }
 function setEirian() {
     var img = new Image();
+//    img.src="EIRIAN_LV01.gif";
     img.src="EIRIAN_LV01.gif";
 
     for(var i=0;i<=MAX_EIRIAN_NUM;i++) {
@@ -692,35 +793,49 @@ function setEirian() {
     }    
 }
 
+function drawBackGroundImage() {
+    var img = new Image();
+    img.src="./background-image-wood01.jpg";
+
+    for(var i=0;i<=TOPX_SIZE;i++) {
+    	for(var j=0;j<=TOPY_SIZE;j++){
+    		ctx.drawImage(img,i*50+2,j*50+2);
+    	}
+    }
+}
+ 
+
     </script>
 
-  </head>
-  <body onLoad="init()" scroll="no" style="overflow:hidden;position:fixed;background-color:#909090;height:650px;">
-    <table style="background-image:url('./pattern_148.gif');">
-      <tr>
-        <td>
-          <div>
-            <canvas id="main_canvas" height="500" width="500"></canvas>
-          </div>
-        </td>
-        <td>
-          <div style="background-image:url('./pattern_128.gif');">
-            <canvas id="side_canvas" height="500" width="150"></canvas>
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <div>
-            <canvas id="message_window" height="150" width="500"></canvas>
-          </div>
-        </td>
-        <td style="font-size:6pt;background-color:#FFFFFF">
-                <a href="http://www.squidfingers.com/patterns/">http://www.squidfingers.com/patterns/</a>
-        </td>
-      </tr>
-    </table>
-  </body>
+</head>
+<body onLoad="init()" scroll="no"
+	style="overflow: hidden; position: fixed; background-color: #909090; height: 650px;">
+	<table style="background-image: url('./pattern_148.gif');">
+		<tr>
+			<td>
+				<div>
+					<canvas id="main_canvas" height="500" width="500"></canvas>
+				</div>
+			</td>
+			<td>
+				<div style="background-image: url('./pattern_128.gif');">
+					<canvas id="side_canvas" height="500" width="150"></canvas>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div>
+					<canvas id="message_window" height="150" width="500"></canvas>
+				</div>
+			</td>
+			<td style="font-size: 6pt; background-color: #FFFFFF"><a
+				href="http://www.squidfingers.com/patterns/">http://www.squidfingers.com/patterns/</a><br>
+				<a href="http://photo.v-colors.com/" target="_blank" title="PHOTO STOCKER -高解像度の無料写真素材-へのリンク"><img src="http://photo.v-colors.com/images/bnPhoto200x50.jpg" alt="PHOTO STOCKER -高解像度の無料写真素材-" /></a>
+			</td>
+		</tr>
+	</table>
+</body>
 </html>
 
 
