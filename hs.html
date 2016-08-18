@@ -36,6 +36,17 @@
     // 2 --> ユニットをドラッグした状態
     // 3 --> ユニットを離した状態（このあとすぐに、ステータスは０になる）
     var cursorStatus = 0;
+    
+    // カーソルで選択状態としたユニットの番号
+    var selectedUnitNo = 0;
+    
+    // カーソル選択状態で過去に塗りつぶしたカーソル位置の座標
+    var oldCursorX = 0;
+    var oldCursorY = 0;
+    
+    // カーソルを選択した際に始点となり、解放されていない位置
+    var selectedCursorX = 0;
+    var selectedCursorY = 0;
 
     function newMessage(message) {
         messageWindowCtx.beginPath();
@@ -346,12 +357,27 @@
     }
 
     function draw(){
+    	
+    	// 自軍のユニットをすべて書き直す
         clearUnitsAll();
         setUnitsAll();
+        
+        // 新しいユニットを作成する
         createNewEirian();
+        
+        // エイリアンのユニットをすべて書き直す
         clearEirian();
         setEirian();
-
+        
+        // マウスが選択状態である場合選択した箇所を黄色に塗りつぶす(消された場合の為に書き直す)
+        if (cursorStatus == 1) {
+	        ctx.beginPath();
+	        ctx.fillStyle="rgb(255,250,15)";
+	        ctx.fillRect((selectedCursorX-1)*50+2,(selectedCursorY-1)*50+2,47,47);
+	        ctx.closePath();
+	        ctx.stroke();
+        }
+        
 /*	ctx.globalCompositeOperation = "source-over";
 	ctx.fillStyle = "rgba(8,8,12,.1)";
 	ctx.fillRect(0, 0, WIDTH, HEIGHT);
@@ -380,12 +406,40 @@
     }
 
     function getMouseXY(event){
+        var targetCursorX = Math.floor((event.clientX - 8) / 50) + 1;
+        var targetCursorY = Math.floor((event.clientY - 8) / 50) + 1;
+        
+        // カーソルを押下した状態かつユニットを選択した状態である
+        if (cursorStatus == 1) {
+        	// 前回反転した色を元に戻す
+            ctx.beginPath();
+            ctx.fillStyle="rgb(255,255,255)";
+            ctx.fillRect((oldCursorX-1)*50+2,(oldCursorY-1)*50+2,47,47);
+            ctx.closePath();
+            ctx.stroke();
+        	
+        	// 画面上を移動したマウスポインタに該当するカーソル位置の色を反転する。
+            ctx.beginPath();
+            ctx.fillStyle="rgb(128,128,255)";
+            ctx.fillRect((targetCursorX-1)*50+2,(targetCursorY-1)*50+2,47,47);
+            ctx.closePath();
+            ctx.stroke();
+            
+            // 新しく移動した先のカーソルは色をクリアする為に座標を保存する
+            oldCursorX = targetCursorX;
+            oldCursorY = targetCursorY;
+        }
+        
+//        alert("targetCursorX[" + targetCursorX + "(" + event.clientX + ")] targetCursorY[" + targetCursorY + "(" + event.clientY + ")]");
+    	/*alert("screenX[" + event.screenX + "] screenY[" + event.screenY + "] pageX[" + event.pageX + "] pageY[" + event.pageY + "] clientX[" + event.clientX + "] clientY[" + event.clientY + "] offsetX[" + event.offsetX + "] offsetY[" + event.offsetY + "]");*/
 /*        console.log("screenX[" + event.screenX + "] screenY[" + event.screenY + "] pageX[" + event.pageX + "] pageY[" + event.pageY + "] clientX[" + event.clientX + "] clientY[" + event.clientY + "] offsetX[" + event.offsetX + "] offsetY[" + event.offsetY + "]");
 */
     }
 
     function getMouseDown(event){
         var check_eirian_hit = 0;
+        var unitFoundFlg = 0;
+        var eirianFoundFlg = 0;
 
         // 移動前のカーソルを消す
         ctx.beginPath();
@@ -408,140 +462,134 @@
         	for (var i=0; i<NUM; i++) {
         		if ((targetCursorX == unitX[i]) && (targetCursorY == unitY[i])) {
         			// 一致するユニットがあった場合
-        			// 1. 画面右上のユニット情報領域に、ユニットのステータスを表示する
+        			// 画面右上のユニット情報領域に、ユニットのステータスを表示する
         			sideCanvasDraw(i);
-        			// 2. ユニットは選択状態の画像に変更する
+        			// ユニットは選択状態の画像に変更する
         			
-        			// 3. カーソルも選択状態の色（青色）に変更する
+        			// カーソルも選択状態の色（青色）に変更する
         			
-        			// 4. ステータスは０(通常)-->1(選択状態)へ変更する
+        			// ステータスは０(通常)-->1(選択状態)へ変更する
         			cursorStatus = 1;
+        			
+        			// 選択状態のユニットの番号を保持する。
+        			selectedUnitNo = i;
+        			
+        			// 選択した位置を保持する。
+        			selectedCursorX = targetCursorX;
+        			selectedCursorY = targetCursorY;
         		}
         	}
-        } else if (cursorStatus == 1) {
-        	// カーソルが選択状態である場合
-        	
-        	// 1. 新たにクリックした場所に、敵が存在していない？
-        	
-        	// 2. 新たにクリックした場所に、味方のユニットが存在している？
-        	
-        	// 3. カーソル位置へ選択済みのユニットを動かす
-        	// 判定方法：ユニットの移動距離はクリアしているか？（ユニットの移動距離の範囲外であれば、エラーを出力する）
-        	
-        	// 4. ユニットの画像を変更する。（任意の場所に動く）
-        	
-        	// 5. カーソルを元に戻す
-        	cursorStatus = 0;
-        	
-        	// 6. サイドメニューのステータスは消される
-        	clearCanvasDraw();
-        	
-        	
-        }
-        
-        /* 味方ユニットの選択状態 */
-        // クリック時
-        // 　選択状態がON
-        // 　　次のクリックで選択されていたユニットが移動する
-        // 　選択状態がOFF
-        // 　　ユニットを選択状態にする（青色）
-        // 連続で同じユニットをクリックした場合は、カーソルは元に戻す。
-        // TODO:選択中（青色）のユニットの画像が必要
-        // TODO:ユニットが移動する時のアニメーションを検討が必要
-        
-        
-        /* 当たり判定 */
-        for (var i=0; i<NUM; i++){
-            if(targetCursorX - 1 == unitX[i]){
-                if(targetCursorY - 1 == unitY[i]){
-                    // 左上のユニット
-/*                    ctx.beginPath();
-                    ctx.fillStyle="rgb(255,32,32)";
-                    ctx.fillRect((targetCursorX - 1) * 50 + 25,targetCursorY * 50 + 25,47,47);
-                    ctx.closePath();
-                    ctx.stroke();*/
-                    check_eirian_hit = 1;
+
+        	// 選択状態では無い場合はあたり判定を行い、射程距離以内であれば、エイリアンに傷を負わせる
+            for (var i=0; i<NUM; i++){
+                if(targetCursorX - 1 == unitX[i]){
+                    if(targetCursorY - 1 == unitY[i]){
+                        // 左上のユニット
+    /*                    ctx.beginPath();
+                        ctx.fillStyle="rgb(255,32,32)";
+                        ctx.fillRect((targetCursorX - 1) * 50 + 25,targetCursorY * 50 + 25,47,47);
+                        ctx.closePath();
+                        ctx.stroke();*/
+                        check_eirian_hit = 1;
+                    }
+                    if(targetCursorY == unitY[i]){
+                        // 左のユニット
+    /*                    ctx.beginPath();
+                        ctx.fillStyle="rgb(255,32,32)";
+                        ctx.fillRect((targetCursorX - 1) * 50 + 25,targetCursorY * 50 + 25,47,47);
+                        ctx.closePath();
+                        ctx.stroke();*/
+                        check_eirian_hit = 1;
+                    }
+                    if(targetCursorY + 1 == unitY[i]){
+                        // 左下のユニット
+    /*                    ctx.beginPath();
+                        ctx.fillStyle="rgb(255,32,32)";
+                        ctx.fillRect((targetCursorX - 1) * 50 + 25,targetCursorY * 50 + 25,47,47);
+                        ctx.closePath();
+                        ctx.stroke();*/
+                        check_eirian_hit = 1;
+                    }
                 }
-                if(targetCursorY == unitY[i]){
-                    // 左のユニット
-/*                    ctx.beginPath();
-                    ctx.fillStyle="rgb(255,32,32)";
-                    ctx.fillRect((targetCursorX - 1) * 50 + 25,targetCursorY * 50 + 25,47,47);
-                    ctx.closePath();
-                    ctx.stroke();*/
-                    check_eirian_hit = 1;
+                if(targetCursorX == unitX[i]){
+                    if(targetCursorY - 1 == unitY[i]){
+                        // 上のユニット
+    /*                    ctx.beginPath();
+                        ctx.fillStyle="rgb(255,32,32)";
+                        ctx.fillRect(targetCursorX * 50,targetCursorY * 50 - 25,47,47);
+                        ctx.closePath();
+                        ctx.stroke();*/
+                        check_eirian_hit = 1;
+                    }
+                    if(targetCursorY + 1 == unitY[i]){
+                        // 下のユニット
+    /*                    ctx.beginPath();
+                        ctx.fillStyle="rgb(255,32,32)";
+                        ctx.fillRect(targetCursorX * 50,targetCursorY * 50 + 25,47,47);
+                        ctx.closePath();
+                        ctx.stroke();*/
+                        check_eirian_hit = 1;
+                    }
                 }
-                if(targetCursorY + 1 == unitY[i]){
-                    // 左下のユニット
-/*                    ctx.beginPath();
-                    ctx.fillStyle="rgb(255,32,32)";
-                    ctx.fillRect((targetCursorX - 1) * 50 + 25,targetCursorY * 50 + 25,47,47);
-                    ctx.closePath();
-                    ctx.stroke();*/
-                    check_eirian_hit = 1;
-                }
-            }
-            if(targetCursorX == unitX[i]){
-                if(targetCursorY - 1 == unitY[i]){
-                    // 上のユニット
-/*                    ctx.beginPath();
-                    ctx.fillStyle="rgb(255,32,32)";
-                    ctx.fillRect(targetCursorX * 50,targetCursorY * 50 - 25,47,47);
-                    ctx.closePath();
-                    ctx.stroke();*/
-                    check_eirian_hit = 1;
-                }
-                if(targetCursorY + 1 == unitY[i]){
-                    // 下のユニット
-/*                    ctx.beginPath();
-                    ctx.fillStyle="rgb(255,32,32)";
-                    ctx.fillRect(targetCursorX * 50,targetCursorY * 50 + 25,47,47);
-                    ctx.closePath();
-                    ctx.stroke();*/
-                    check_eirian_hit = 1;
-                }
-            }
-            if(targetCursorX + 1 == unitX[i]){
-                if(targetCursorY - 1 == unitY[i]){
-                    // 右上のユニット
-/*                    ctx.beginPath();
-                    ctx.fillStyle="rgb(255,32,32)";
-                    ctx.fillRect((targetCursorX + 1) * 50 - 25,targetCursorY * 50 - 25,47,47);
-                    ctx.closePath();
-                    ctx.stroke();*/
-                    check_eirian_hit = 1;
-                }
-                if(targetCursorY == unitY[i]){
-                    // 右のユニット
-/*                    ctx.beginPath();
-                    ctx.fillStyle="rgb(255,32,32)";
-                    ctx.fillRect((targetCursorX + 1) * 50 - 25,targetCursorY * 50 - 25,47,47);
-                    ctx.closePath();
-                    ctx.stroke();*/
-                    check_eirian_hit = 1;
-                }
-                if(targetCursorY + 1 == unitY[i]){
-                    // 右下のユニット
-/*                    ctx.beginPath();
-                    ctx.fillStyle="rgb(255,32,32)";
-                    ctx.fillRect((targetCursorX + 1) * 50 - 25,targetCursorY * 50 - 25,47,47);
-                    ctx.closePath();
-                    ctx.stroke();*/
-                    check_eirian_hit = 1;
+                if(targetCursorX + 1 == unitX[i]){
+                    if(targetCursorY - 1 == unitY[i]){
+                        // 右上のユニット
+    /*                    ctx.beginPath();
+                        ctx.fillStyle="rgb(255,32,32)";
+                        ctx.fillRect((targetCursorX + 1) * 50 - 25,targetCursorY * 50 - 25,47,47);
+                        ctx.closePath();
+                        ctx.stroke();*/
+                        check_eirian_hit = 1;
+                    }
+                    if(targetCursorY == unitY[i]){
+                        // 右のユニット
+    /*                    ctx.beginPath();
+                        ctx.fillStyle="rgb(255,32,32)";
+                        ctx.fillRect((targetCursorX + 1) * 50 - 25,targetCursorY * 50 - 25,47,47);
+                        ctx.closePath();
+                        ctx.stroke();*/
+                        check_eirian_hit = 1;
+                    }
+                    if(targetCursorY + 1 == unitY[i]){
+                        // 右下のユニット
+    /*                    ctx.beginPath();
+                        ctx.fillStyle="rgb(255,32,32)";
+                        ctx.fillRect((targetCursorX + 1) * 50 - 25,targetCursorY * 50 - 25,47,47);
+                        ctx.closePath();
+                        ctx.stroke();*/
+                        check_eirian_hit = 1;
+                    }
                 }
             }
-        }
-        if(check_eirian_hit == 1) {
-            var ret = destroyEirian();
-            if (ret == 1) {
-                // 破壊した場合は、カーソルを赤色に描画
-    	        ctx.beginPath();
-    	        ctx.fillStyle="rgb(255,32,32)";
-    	        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
-    	        ctx.closePath();
-    	        ctx.stroke();
+            if(check_eirian_hit == 1) {
+                var ret = destroyEirian();
+                if (ret == 1) {
+                    // 破壊した場合は、カーソルを赤色に描画
+        	        ctx.beginPath();
+        	        ctx.fillStyle="rgb(255,32,32)";
+        	        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+        	        ctx.closePath();
+        	        ctx.stroke();
+                } else {
+                    // 攻撃範囲に的がいなかった場合は通常のカーソルを描画
+                    if (cursorStatus == 0) {
+                    	// 自軍ユニット未選択状態の場合は、カーソルの色は「黒」でぬりつぶす。
+        		        ctx.beginPath();
+        		        ctx.fillStyle="rgb(32,32,32)";
+        		        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+        		        ctx.closePath();
+        		        ctx.stroke();
+                    } else if (cursorStatus == 1) {
+                    	// 自軍ユニット未選択状態の場合は、カーソルの色は「青」でぬりつぶす。
+        		        ctx.beginPath();
+        		        ctx.fillStyle="rgb(32,32,255)";
+        		        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+        		        ctx.closePath();
+        		        ctx.stroke();
+                    }
+                }
             } else {
-                // 攻撃範囲に的がいなかった場合は通常のカーソルを描画
+                // UNITの攻撃範囲外は通常のカーソルを描画
                 if (cursorStatus == 0) {
                 	// 自軍ユニット未選択状態の場合は、カーソルの色は「黒」でぬりつぶす。
     		        ctx.beginPath();
@@ -558,24 +606,62 @@
     		        ctx.stroke();
                 }
             }
-        } else {
-            // UNITの攻撃範囲外は通常のカーソルを描画
-            if (cursorStatus == 0) {
-            	// 自軍ユニット未選択状態の場合は、カーソルの色は「黒」でぬりつぶす。
-		        ctx.beginPath();
-		        ctx.fillStyle="rgb(32,32,32)";
-		        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
-		        ctx.closePath();
-		        ctx.stroke();
-            } else if (cursorStatus == 1) {
-            	// 自軍ユニット未選択状態の場合は、カーソルの色は「青」でぬりつぶす。
-		        ctx.beginPath();
-		        ctx.fillStyle="rgb(32,32,255)";
-		        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
-		        ctx.closePath();
-		        ctx.stroke();
-            }
+        
+        } else if (cursorStatus == 1) {
+        	// カーソルが選択状態である場合
+        	
+        	// 1. 新たにクリックした場所に、敵が存在している場合、移動できない
+        	for (var i=0; i<MAX_EIRIAN_NUM; i++) {
+				eirianFoundFlg = 0;        		
+        		if ((targetCursorX == eirianX[i]) && (targetCursorY == eirianY[i])) {
+        			eirianFoundFlg = 1;
+        			break;
+        		}
+        	}
+        	// 2. 新たにクリックした場所に、味方のユニットが存在している？
+        	if (eirianFoundFlg == 0) {
+	        	for (var i=0; i<NUM; i++) {
+					eirianFoundFlg = 0;        		
+	        		if ((targetCursorX == unitX[i]) && (targetCursorY == unitY[i])) {
+	        			unitFoundFlg = 1;
+	        			break;
+	        		}
+	        	}
+        	}
+        	
+        	// 3. 移動先が既にユニットで埋まっていなければ、カーソル位置へ選択済みのユニットを動かす
+        	if ((eirianFoundFlg == 0) && (unitFoundFlg == 0)) {
+        		unitX[selectedUnitNo] = targetCursorX;
+        		unitY[selectedUnitNo] = targetCursorY;
+        	}
+        	
+        	// TODO:未着手少し後回し(難易度高い)判定方法：ユニットの移動距離はクリアしているか？（ユニットの移動距離の範囲外であれば、エラーを出力する）
+        	
+        	// 4. ユニットの画像を変更する。（任意の場所に動く）
+        	
+        	// 5. カーソルを元に戻す
+        	cursorStatus = 0;
+        	
+        	// 6. サイドメニューのステータスは消される
+        	clearCanvasDraw();
+
+        	// 7. カーソルは選択状態ではなくなったので元の色に戻す
+ 	        ctx.beginPath();
+   	        ctx.fillStyle="rgb(255,255,255)";
+   	        ctx.fillRect((selectedCursorX-1)*50+2,(selectedCursorY-1)*50+2,47,47);
+   	        ctx.closePath();
+   	        ctx.stroke();
         }
+        
+        /* 味方ユニットの選択状態 */
+        // クリック時
+        // 　選択状態がON
+        // 　　次のクリックで選択されていたユニットが移動する
+        // 　選択状態がOFF
+        // 　　ユニットを選択状態にする（青色）
+        // 連続で同じユニットをクリックした場合は、カーソルは元に戻す。
+        // TODO:選択中（青色）のユニットの画像が必要
+        // TODO:ユニットが移動する時のアニメーションを検討が必要
     }
 
 function destroyEirian() {
@@ -640,11 +726,11 @@ function CursorDraw()
     ctx.closePath();
     ctx.stroke();
 
-	if (pressedKey == 98 || pressedKey == 38) 
+	if (pressedKey == 98 || pressedKey == 40) 
 	{ 
             nowCursorY = nowCursorY + 1;
     }
-	if (pressedKey == 104 || pressedKey == 39) 
+	if (pressedKey == 104 || pressedKey == 38) 
 	{ 
              nowCursorY = nowCursorY - 1;
     }
@@ -652,7 +738,7 @@ function CursorDraw()
 	{ 
              nowCursorX = nowCursorX - 1;
     }
-	if (pressedKey == 102 || pressedKey == 40) 
+	if (pressedKey == 102 || pressedKey == 39) 
 	{ 
              nowCursorX = nowCursorX + 1;
     }
@@ -662,7 +748,7 @@ function CursorDraw()
     ctx.beginPath();
     ctx.fillStyle="rgb(32,32,32)";
     if (cursorStatus == 0) {
-    	alert(1);
+//    	alert(1);
     }
     ctx.fillStyle="rgb(32,32,255)";
     ctx.fillRect(nowCursorX*50+2,nowCursorY*50+2,47,47);
@@ -688,38 +774,38 @@ function clearUnitsAll(){
  *
  */
 function setUnitsAll(){
-	// カーソルの選択状態が「未選択」でなければユニットの再描画は行わない。
 	// TODO:毎回全部の自軍ユニットを書き直すと重くなるので、必要なものだけを書き直すように設計をしたい。
-    if (cursorStatus == 0) {
-        for(var i=0;i<NUM;i++) {
-            var img = new Image();
-            if(unitType[i] == 0){
-                img.src="UNIT_LV01.gif";
-            } else if(unitType[i] == 1){
-                img.src="UNIT_LV02.gif";
-            } else if(unitType[i] == 2){
-                img.src="UNIT_LV03.gif";
-            } else if(unitType[i] == 3){
-                img.src="UNIT_LV02.gif";
-            } else if(unitType[i] == 4){
-                img.src="TUNK_SENSYA_LV01.gif";
-            } else if(unitType[i] == 5){
-                img.src="TUNK_SENSYA_LV02.gif";
-            } else if(unitType[i] == 6){
-                img.src="TUNK_SENSYA_LV03.gif";
-            } else if(unitType[i] == 7){
-                img.src="TUNK_ROCKET_LV01.gif";
-            } else if(unitType[i] == 8){
-                img.src="TUNK_ROCKET_LV02.gif";
-            } else if(unitType[i] == 9){
-                img.src="TUNK_ROCKET_LV03.gif";
-            } else if(unitType[i] == 10){
-                img.src="FIGHTER_LV01.gif";
-            } else if(unitType[i] == 11){
-                img.src="FIGHTER_LV02.gif";
-            } else if(unitType[i] == 12){
-                img.src="FIGHTER_LV03.gif";
-            }
+    for(var i=0;i<NUM;i++) {
+        var img = new Image();
+        if(unitType[i] == 0){
+            img.src="UNIT_LV01.gif";
+        } else if(unitType[i] == 1){
+            img.src="UNIT_LV02.gif";
+        } else if(unitType[i] == 2){
+            img.src="UNIT_LV03.gif";
+        } else if(unitType[i] == 3){
+            img.src="UNIT_LV02.gif";
+        } else if(unitType[i] == 4){
+            img.src="TUNK_SENSYA_LV01.gif";
+        } else if(unitType[i] == 5){
+            img.src="TUNK_SENSYA_LV02.gif";
+        } else if(unitType[i] == 6){
+            img.src="TUNK_SENSYA_LV03.gif";
+        } else if(unitType[i] == 7){
+            img.src="TUNK_ROCKET_LV01.gif";
+        } else if(unitType[i] == 8){
+            img.src="TUNK_ROCKET_LV02.gif";
+        } else if(unitType[i] == 9){
+            img.src="TUNK_ROCKET_LV03.gif";
+        } else if(unitType[i] == 10){
+            img.src="FIGHTER_LV01.gif";
+        } else if(unitType[i] == 11){
+            img.src="FIGHTER_LV02.gif";
+        } else if(unitType[i] == 12){
+            img.src="FIGHTER_LV03.gif";
+        }
+        if ((cursorStatus == 0) || ((cursorStatus == 1) && (selectedUnitNo != i)) ) {
+        	// カーソルが選択状態では無い場合、もしくは選択状態ではあるが掴んだユニットでは無い場合描画
             ctx.drawImage(img,(unitX[i]-1)*50+2,(unitY[i]-1)*50+2,47,47);
         }
     }
