@@ -105,11 +105,6 @@
      * param: unitNo 選択されたユニットの番号
      */
     function sideCanvasDraw(unitNo) {
-/*    	sideCtx.beginPath();
-    	sideCtx.fillStyle="rgb(0,0,0)";
-    	sideCtx.fillRect(0,0,150,500);
-    	sideCtx.closePath();
-    	sideCtx.stroke();*/
     	var img = new Image();
     	img.src = "./pattern_128.gif";
     	
@@ -279,21 +274,12 @@
 
             }
 
-　　　　/* 画面表示のシーケンスは200ミリsecごと */
-       // カーソルの移動と、何らかのアニメーションはここで制御
-　　　　setInterval(draw, 200);
+                　　　　 /* 画面表示のシーケンスは200ミリsecごと */
+　　　　                 setInterval(draw, 200);
+                 
        //TODO:カーソルが点滅すべきだ
 
-       // hiddenでtextボックスを作り第一引数に渡す設計で表示できるはず
-       // http://www.html5.jp/canvas/ref/method/fillText.html
-       // hidden textボックスは配列で５行持ち自動でスクロールさせる関数と
-       // 一番下の行に文字列を入力する関数を用意する
-
-       // todo: DIVタグを打てば<form></form>に定義された項目も取得できる可能性がある
-       // todo: 枠を表示するプログラムは、外だしにしてjsファイルとしたい
-       
-
-    }
+　　　　    }
 	}
 
     /* 左上の枠 */
@@ -378,31 +364,6 @@
 	        ctx.stroke();
         }
         
-/*	ctx.globalCompositeOperation = "source-over";
-	ctx.fillStyle = "rgba(8,8,12,.1)";
-	ctx.fillRect(0, 0, WIDTH, HEIGHT);
-	ctx.globalCompositeOperation = "lighter";
-
-	for(var i = 0; i < NUM; i++){
-	    //位置を更新
-	    locX[i] += speedX[i];
-	    locY[i] += speedY[i];
-	    
-	    if(locX[i] < 0 || locX[i] > WIDTH){
-		speedX[i] *= -1.0;
-	    }
-
-	    if(locY[i] < 0 || locY[i] > HEIGHT){
-		speedY[i] *= -1.0;
-	    }
-	    
-	    //更新した座標で円を描く
-	    ctx.beginPath();
-	    ctx.fillStyle = 'rgb(' + r[i] + ',' + g[i] + ',' + b[i] + ')';
-            ctx.arc(locX[i], locY[i], radius[i], 0, Math.PI*2.0, true);
-            ctx.fill();
-	}
-*/
     }
 
     function getMouseXY(event){
@@ -429,11 +390,6 @@
             oldCursorX = targetCursorX;
             oldCursorY = targetCursorY;
         }
-        
-//        alert("targetCursorX[" + targetCursorX + "(" + event.clientX + ")] targetCursorY[" + targetCursorY + "(" + event.clientY + ")]");
-    	/*alert("screenX[" + event.screenX + "] screenY[" + event.screenY + "] pageX[" + event.pageX + "] pageY[" + event.pageY + "] clientX[" + event.clientX + "] clientY[" + event.clientY + "] offsetX[" + event.offsetX + "] offsetY[" + event.offsetY + "]");*/
-/*        console.log("screenX[" + event.screenX + "] screenY[" + event.screenY + "] pageX[" + event.pageX + "] pageY[" + event.pageY + "] clientX[" + event.clientX + "] clientY[" + event.clientY + "] offsetX[" + event.offsetX + "] offsetY[" + event.offsetY + "]");
-*/
     }
 
     function getMouseDown(event){
@@ -485,78 +441,38 @@
                 if(targetCursorX - 1 == unitX[i]){
                     if(targetCursorY - 1 == unitY[i]){
                         // 左上のユニット
-    /*                    ctx.beginPath();
-                        ctx.fillStyle="rgb(255,32,32)";
-                        ctx.fillRect((targetCursorX - 1) * 50 + 25,targetCursorY * 50 + 25,47,47);
-                        ctx.closePath();
-                        ctx.stroke();*/
                         check_eirian_hit = 1;
                     }
                     if(targetCursorY == unitY[i]){
                         // 左のユニット
-    /*                    ctx.beginPath();
-                        ctx.fillStyle="rgb(255,32,32)";
-                        ctx.fillRect((targetCursorX - 1) * 50 + 25,targetCursorY * 50 + 25,47,47);
-                        ctx.closePath();
-                        ctx.stroke();*/
                         check_eirian_hit = 1;
                     }
                     if(targetCursorY + 1 == unitY[i]){
                         // 左下のユニット
-    /*                    ctx.beginPath();
-                        ctx.fillStyle="rgb(255,32,32)";
-                        ctx.fillRect((targetCursorX - 1) * 50 + 25,targetCursorY * 50 + 25,47,47);
-                        ctx.closePath();
-                        ctx.stroke();*/
                         check_eirian_hit = 1;
                     }
                 }
                 if(targetCursorX == unitX[i]){
                     if(targetCursorY - 1 == unitY[i]){
                         // 上のユニット
-    /*                    ctx.beginPath();
-                        ctx.fillStyle="rgb(255,32,32)";
-                        ctx.fillRect(targetCursorX * 50,targetCursorY * 50 - 25,47,47);
-                        ctx.closePath();
-                        ctx.stroke();*/
                         check_eirian_hit = 1;
                     }
                     if(targetCursorY + 1 == unitY[i]){
                         // 下のユニット
-    /*                    ctx.beginPath();
-                        ctx.fillStyle="rgb(255,32,32)";
-                        ctx.fillRect(targetCursorX * 50,targetCursorY * 50 + 25,47,47);
-                        ctx.closePath();
-                        ctx.stroke();*/
                         check_eirian_hit = 1;
                     }
                 }
                 if(targetCursorX + 1 == unitX[i]){
                     if(targetCursorY - 1 == unitY[i]){
                         // 右上のユニット
-    /*                    ctx.beginPath();
-                        ctx.fillStyle="rgb(255,32,32)";
-                        ctx.fillRect((targetCursorX + 1) * 50 - 25,targetCursorY * 50 - 25,47,47);
-                        ctx.closePath();
-                        ctx.stroke();*/
                         check_eirian_hit = 1;
                     }
                     if(targetCursorY == unitY[i]){
                         // 右のユニット
-    /*                    ctx.beginPath();
-                        ctx.fillStyle="rgb(255,32,32)";
-                        ctx.fillRect((targetCursorX + 1) * 50 - 25,targetCursorY * 50 - 25,47,47);
-                        ctx.closePath();
-                        ctx.stroke();*/
                         check_eirian_hit = 1;
                     }
                     if(targetCursorY + 1 == unitY[i]){
                         // 右下のユニット
-    /*                    ctx.beginPath();
-                        ctx.fillStyle="rgb(255,32,32)";
-                        ctx.fillRect((targetCursorX + 1) * 50 - 25,targetCursorY * 50 - 25,47,47);
-                        ctx.closePath();
-                        ctx.stroke();*/
                         check_eirian_hit = 1;
                     }
                 }
@@ -905,7 +821,11 @@ function drawBackGroundImage() {
 			</td>
 			<td>
 				<div style="background-image: url('./pattern_128.gif');">
-					<canvas id="side_canvas" height="500" width="150"></canvas>
+					<canvas id="side_canvas" height="450" width="150"></canvas>
+				</div>
+				<div>
+				    <input type="button" name="btn_shikisya" value="指揮車" onClick="javascript:window.open('./shikisya_select.html', '指揮車選択画面', 'width=400, height=300, menubar=no, toolbar=no, location=no, status=no, resizable=no, scrollbars=yes');">
+				    <input type="button" name="btn_shikisya" value="将　軍">
 				</div>
 			</td>
 		</tr>
