@@ -6,6 +6,21 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js" type="text/javascript"></script>
 <title>将軍選択画面</title>
 <script type="text/javascript">
+var str;
+$(document).ready(function(){
+	$.getJSON("syogun_data.json", function(data){
+		str = "header： " + data.header;
+		str = str + "<table border=1>";
+		str = str + "<tr><td width=180>&nbsp;名前</td><td width=100>&nbsp;対歩兵</td><td width=100>&nbsp;対戦車</td><td width=100>&nbsp;対空</td>";
+		for(var i in data){
+			for(var j in data[i].person) {
+		        str = str + "<tr><td>" + data[i].person[j].name + "</td><td>" + data[i].person[j].unit + "</td><td>" + data[i].person[j].tunk + "</td><td>" + data[i].person[j].fighter + "</td></tr>";
+			}
+		}
+		str = str + "</table>";
+	    $("#output").append(str);
+	})
+})
 function init(){
 };
 $( function() {
@@ -19,8 +34,8 @@ $( function() {
                 	// TODO:武将データを展開して一覧形式で画面に表示したい
                 	// TODO:選択状態となった武将を何かのユニットに搭乗させたい
                 	// TODO:搭乗するユニットは指揮車のみとしたい
-                    $( '#sample-result' ).html( data );
-                    
+                	var obj = JSON.parse(data);
+                    $( '#sample-result' ).html( obj.header );
                 },
                 error: function( data ) {
                     $( '#sample-result' ).html( '<font color="red">読み込みNG(ChromeではNG)</font>' );
@@ -32,10 +47,9 @@ $( function() {
 </script>
  </head>
 <body onLoad="init()">
-    <table border="1">
-        <tr><td></td></tr>
-    </table>
-    <input type="button" id="ajax-button" value="将軍データ読み込み"> 
-    <div id="sample-result"></div>
+    <div id="output"></div>
+<!--    <input type="button" id="ajax-button" value="再読み込み"> -->
+<!--    <div id="sample-result"></div> -->
+<input type="button" id="ajax-button" value="選択" onClick="window.close();">
 </body>
 </html>

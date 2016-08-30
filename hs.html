@@ -4,7 +4,6 @@
 <meta charset="utf-8" />
 <title>hs_project</title>
 <script type="text/javascript">
-    // TODO:全体的にコメントが足りてない
     // TODO:画像が全て書き直しが必要。無料のツールで作成したために、コピー防止のロゴが入っている。
     const NUM = 10;
     var unitType = new Array(10);
@@ -29,21 +28,21 @@
     var eirianType = new Array(100);
     var eirianEnabledFlg = new Array(100);
     var lastCreateEirian = 0;
-    
+
     // カーソルのステータス
     // 0 --> 通常の状態
     // 1 --> 選択した状態
     // 2 --> ユニットをドラッグした状態
     // 3 --> ユニットを離した状態（このあとすぐに、ステータスは０になる）
     var cursorStatus = 0;
-    
+
     // カーソルで選択状態としたユニットの番号
     var selectedUnitNo = 0;
-    
+
     // カーソル選択状態で過去に塗りつぶしたカーソル位置の座標
     var oldCursorX = 0;
     var oldCursorY = 0;
-    
+
     // カーソルを選択した際に始点となり、解放されていない位置
     var selectedCursorX = 0;
     var selectedCursorY = 0;
@@ -99,7 +98,7 @@
     	sideCtx.drawImage(img, 147, 294);
     	sideCtx.drawImage(img, 196, 294);
     }
-    
+
     /**
      * サイドスクリーンに選択されたユニットの情報を描画
      * param: unitNo 選択されたユニットの番号
@@ -107,7 +106,7 @@
     function sideCanvasDraw(unitNo) {
     	var img = new Image();
     	img.src = "./pattern_128.gif";
-    	
+
     	/* 画像を描画 */
     	sideCtx.drawImage(img, 0, 0);
         sideCtx.beginPath();
@@ -160,7 +159,7 @@
     function init(){
         // デフォルトパラメータの初期化処理
         initializeDefaultParameter();
-        
+
         // コマンドラインによる入力
         gameLevel = prompt("GAME LEVEL を入力してください。(1 - 10)", gameLevel);
 
@@ -193,10 +192,10 @@
         }
         // TODO:メッセージの表示が安っぽい。もう少しアニーメーション的にスクロールすべきだ
         // TODO:メッセージの下側の空白が不要
-        
+
         newMessage("ゲームのレベルは[" + gameLevel + "]が設定されました。");
         newMessage("ゲームを開始します。");
-        
+
         // MAINのCANVASを設定
         ctx.beginPath();
         ctx.fillStyle="rgb(255,255,255)";
@@ -212,7 +211,7 @@
             var counter = 0;
             var innerWhileCond = true;
             var outerWhileCond = true;
-            
+
             // 自軍のユニットを配置する
 		    while(outerWhileCond){
                 if(counter > 10) {
@@ -249,13 +248,13 @@
 	                drawRightDown(j, k, 64, 64, 64, MERGIN);
 	            }
 	        }
-		    
+
 	        // ゲーム盤の初期化（全て森のマスにする）
 	        drawBackGroundImage();
 
             /* マウスハンドラのイベント取得を開始 */
             document.onmousemove = getMouseXY;
-            document.onmousedown = getMouseDown;            
+            document.onmousedown = getMouseDown;
 
             // ------------------------------------------------------------
             // イベントのリッスンを開始する
@@ -276,7 +275,7 @@
 
                 　　　　 /* 画面表示のシーケンスは200ミリsecごと */
 　　　　                 setInterval(draw, 200);
-                 
+
        //TODO:カーソルが点滅すべきだ
 
 　　　　    }
@@ -343,18 +342,18 @@
     }
 
     function draw(){
-    	
+
     	// 自軍のユニットをすべて書き直す
         clearUnitsAll();
         setUnitsAll();
-        
+
         // 新しいユニットを作成する
         createNewEirian();
-        
+
         // エイリアンのユニットをすべて書き直す
         clearEirian();
         setEirian();
-        
+
         // マウスが選択状態である場合選択した箇所を黄色に塗りつぶす(消された場合の為に書き直す)
         if (cursorStatus == 1) {
 	        ctx.beginPath();
@@ -363,13 +362,13 @@
 	        ctx.closePath();
 	        ctx.stroke();
         }
-        
+
     }
 
     function getMouseXY(event){
         var targetCursorX = Math.floor((event.clientX - 8) / 50) + 1;
         var targetCursorY = Math.floor((event.clientY - 8) / 50) + 1;
-        
+
         // カーソルを押下した状態かつユニットを選択した状態である
         if (cursorStatus == 1) {
         	// 前回反転した色を元に戻す
@@ -378,14 +377,14 @@
             ctx.fillRect((oldCursorX-1)*50+2,(oldCursorY-1)*50+2,47,47);
             ctx.closePath();
             ctx.stroke();
-        	
+
         	// 画面上を移動したマウスポインタに該当するカーソル位置の色を反転する。
             ctx.beginPath();
             ctx.fillStyle="rgb(128,128,255)";
             ctx.fillRect((targetCursorX-1)*50+2,(targetCursorY-1)*50+2,47,47);
             ctx.closePath();
             ctx.stroke();
-            
+
             // 新しく移動した先のカーソルは色をクリアする為に座標を保存する
             oldCursorX = targetCursorX;
             oldCursorY = targetCursorY;
@@ -421,15 +420,15 @@
         			// 画面右上のユニット情報領域に、ユニットのステータスを表示する
         			sideCanvasDraw(i);
         			// ユニットは選択状態の画像に変更する
-        			
+
         			// カーソルも選択状態の色（青色）に変更する
-        			
+
         			// ステータスは０(通常)-->1(選択状態)へ変更する
         			cursorStatus = 1;
-        			
+
         			// 選択状態のユニットの番号を保持する。
         			selectedUnitNo = i;
-        			
+
         			// 選択した位置を保持する。
         			selectedCursorX = targetCursorX;
         			selectedCursorY = targetCursorY;
@@ -522,13 +521,13 @@
     		        ctx.stroke();
                 }
             }
-        
+
         } else if (cursorStatus == 1) {
         	// カーソルが選択状態である場合
-        	
+
         	// 1. 新たにクリックした場所に、敵が存在している場合、移動できない
         	for (var i=0; i<MAX_EIRIAN_NUM; i++) {
-				eirianFoundFlg = 0;        		
+				eirianFoundFlg = 0;
         		if ((targetCursorX == eirianX[i]) && (targetCursorY == eirianY[i])) {
         			eirianFoundFlg = 1;
         			break;
@@ -537,27 +536,27 @@
         	// 2. 新たにクリックした場所に、味方のユニットが存在している？
         	if (eirianFoundFlg == 0) {
 	        	for (var i=0; i<NUM; i++) {
-					eirianFoundFlg = 0;        		
+					eirianFoundFlg = 0;
 	        		if ((targetCursorX == unitX[i]) && (targetCursorY == unitY[i])) {
 	        			unitFoundFlg = 1;
 	        			break;
 	        		}
 	        	}
         	}
-        	
+
         	// 3. 移動先が既にユニットで埋まっていなければ、カーソル位置へ選択済みのユニットを動かす
         	if ((eirianFoundFlg == 0) && (unitFoundFlg == 0)) {
         		unitX[selectedUnitNo] = targetCursorX;
         		unitY[selectedUnitNo] = targetCursorY;
         	}
-        	
+
         	// TODO:未着手少し後回し(難易度高い)判定方法：ユニットの移動距離はクリアしているか？（ユニットの移動距離の範囲外であれば、エラーを出力する）
-        	
+
         	// 4. ユニットの画像を変更する。（任意の場所に動く）
-        	
+
         	// 5. カーソルを元に戻す
         	cursorStatus = 0;
-        	
+
         	// 6. サイドメニューのステータスは消される
         	clearCanvasDraw();
 
@@ -568,7 +567,7 @@
    	        ctx.closePath();
    	        ctx.stroke();
         }
-        
+
         /* 味方ユニットの選択状態 */
         // クリック時
         // 　選択状態がON
@@ -590,7 +589,7 @@ function destroyEirian() {
             newMessage("座標：X[" + nowCursorX + "] Y[" + nowCursorY + "]のエイリアンを破壊しました。");
             return 1; // 破壊
         }
-    }   
+    }
 	return 0; // 破壊しなかった
 	// todo:敵を破壊した音が必要
 }
@@ -629,7 +628,7 @@ function CommandInput()
 		console.log("MAX_EIRIAN_NUM[" + MAX_EIRIAN_NUM + "]");
 		for (var i=0; i< MAX_EIRIAN_NUM; i++) {
 			console.log("EIRIAN[" + i + "] X:" + eirianX[i] + " Y:" + eirianY[i] + " TYPE:" + eirianType[i] + " eirianEnabledFlg:" + eirianEnabledFlg[i]);
-		}	
+		}
 	}
 }
 
@@ -642,20 +641,20 @@ function CursorDraw()
     ctx.closePath();
     ctx.stroke();
 
-	if (pressedKey == 98 || pressedKey == 40) 
-	{ 
+	if (pressedKey == 98 || pressedKey == 40)
+	{
             nowCursorY = nowCursorY + 1;
     }
-	if (pressedKey == 104 || pressedKey == 38) 
-	{ 
+	if (pressedKey == 104 || pressedKey == 38)
+	{
              nowCursorY = nowCursorY - 1;
     }
-	if (pressedKey == 100 || pressedKey == 37) 
-	{ 
+	if (pressedKey == 100 || pressedKey == 37)
+	{
              nowCursorX = nowCursorX - 1;
     }
-	if (pressedKey == 102 || pressedKey == 39) 
-	{ 
+	if (pressedKey == 102 || pressedKey == 39)
+	{
              nowCursorX = nowCursorX + 1;
     }
     pressedKey = 0;
@@ -686,7 +685,7 @@ function clearUnitsAll(){
 }
 
 /**
- * 自軍のユニットを全て再描画する 
+ * 自軍のユニットを全て再描画する
  *
  */
 function setUnitsAll(){
@@ -755,7 +754,7 @@ function createNewEirian() {
                     if((eirianX[counter] == eirianX[i]) && (eirianY[counter] == eirianY[i])) {
                         i = MAX_EIRIAN_NUM;
                         outerWhileCond = true; // 検査結果がＮＧなので再びエイリアンを追加するループを回す
-                    } 
+                    }
                 }
             }
             // 検査結果がＯＫの場合はエイリアンを有効(1)にする。
@@ -780,7 +779,7 @@ function clearEirian() {
         ctx.fillRect((eirianX[i]-1)*50+2,(eirianY[i]-1)*50+2,47,47);
         ctx.closePath();
         ctx.stroke();
-    }    
+    }
 }
 function setEirian() {
     var img = new Image();
@@ -792,7 +791,7 @@ function setEirian() {
         if (eirianEnabledFlg[i] == 1) {
             ctx.drawImage(img,(eirianX[i]-1)*50+2,(eirianY[i]-1)*50+2,47,47);
         }
-    }    
+    }
 }
 
 function drawBackGroundImage() {
@@ -805,7 +804,7 @@ function drawBackGroundImage() {
     	}
     }
 }
- 
+
 
     </script>
 
