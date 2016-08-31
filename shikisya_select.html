@@ -11,15 +11,19 @@ $(document).ready(function(){
 	$.getJSON("syogun_data.json", function(data){
 		str = "header： " + data.header;
 		str = str + "<table border=1>";
-		str = str + "<tr><td width=180>&nbsp;名前</td><td width=100>&nbsp;対歩兵</td><td width=100>&nbsp;対戦車</td><td width=100>&nbsp;対空</td>";
+		str = str + "<tr><td>&nbsp;</td><td width=180>&nbsp;名前</td><td width=100>&nbsp;対歩兵</td><td width=100>&nbsp;対戦車</td><td width=100>&nbsp;対空</td>";
 		for(var i in data){
 			for(var j in data[i].person) {
-		        str = str + "<tr><td>" + data[i].person[j].name + "</td><td>" + data[i].person[j].unit + "</td><td>" + data[i].person[j].tunk + "</td><td>" + data[i].person[j].fighter + "</td></tr>";
+		        str = str + "<tr><td><input type='radio' name='selectSyogun' value='" + j + "'></td><td>" + data[i].person[j].name + "</td><td>" + data[i].person[j].unit + "</td><td>" + data[i].person[j].tunk + "</td><td>" + data[i].person[j].fighter + "</td></tr>";
 			}
 		}
 		str = str + "</table>";
 	    $("#output").append(str);
-	})
+	});
+	$("html").mousemove(function(e){
+		$('#side-ruler').css('left', e.clientX);
+		$('#top-ruler').css('top', e.clientY);
+	});
 })
 function init(){
 };
@@ -45,11 +49,19 @@ $( function() {
     );
 } );
 </script>
+<style type="text/css"><!--
+#side-ruler{ position:absolute; left:600px;top:0px}
+#top-ruler{ position:absolute; left:0px;top:0px}
+--></style>
  </head>
 <body onLoad="init()">
     <div id="output"></div>
 <!--    <input type="button" id="ajax-button" value="再読み込み"> -->
 <!--    <div id="sample-result"></div> -->
+<img src="top-ruler.bmp" id="side-ruler">
+<img src="side-ruler.bmp" id="top-ruler">
 <input type="button" id="ajax-button" value="選択" onClick="window.close();">
+<script>
+</script>
 </body>
 </html>
