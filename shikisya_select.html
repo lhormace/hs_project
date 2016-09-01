@@ -8,37 +8,72 @@
 <script type="text/javascript">
 var str;
 $(document).ready(function(){
-	$.getJSON("syogun_data.json", function(data){
-		str = "header： " + data.header;
-		str = str + "<table border=1>";
-		str = str + "<tr><td>&nbsp;</td><td width=180>&nbsp;名前</td><td width=100>&nbsp;対歩兵</td><td width=100>&nbsp;対戦車</td><td width=100>&nbsp;対空</td>";
-		for(var i in data){
-			for(var j in data[i].person) {
-		        str = str + "<tr><td><input type='radio' name='selectSyogun' value='" + j + "'></td><td>" + data[i].person[j].name + "</td><td>" + data[i].person[j].unit + "</td><td>" + data[i].person[j].tunk + "</td><td>" + data[i].person[j].fighter + "</td></tr>";
-			}
-		}
-		str = str + "</table>";
-	    $("#output").append(str);
-	});
-	$("html").mousemove(function(e){
-		$('#side-ruler').css('left', e.clientX);
-		$('#top-ruler').css('top', e.clientY);
-	});
-})
+    // JSONで通信した検索結果を画面に初期描画する
+    $.getJSON("syogun_data.json", function(data){
+        str = "header： " + data.header;
+        str = str + "<table border=1>";
+        str = str + "<tr><td>&nbsp;</td><td width=180>&nbsp;名前</td><td width=100>&nbsp;対歩兵</td><td width=100>&nbsp;対戦車</td><td width=100>&nbsp;対空</td>";
+        for(var i in data){
+            for(var j in data[i].person) {
+                str = str + "<tr><td><input type='radio' name='selectSyogun' value='" + j + "'></td><td>" + data[i].person[j].name + "</td><td>" + data[i].person[j].unit + "</td><td>" + data[i].person[j].tunk + "</td><td>" + data[i].person[j].fighter + "</td></tr>";
+            }
+        }
+        str = str + "</table>";
+        $("#output").append(str);
+    });
+
+    // ルーラー用に初期値を設定する
+    $("html").mousemove(function(e){
+        $('#side-ruler').css('left', e.clientX);
+        $('#top-ruler').css('top', e.clientY);
+    });
+});
+$(window).on("load",function(){
+    // マウスのフォーカスがあたった項目をハイライトさせる為の処理
+    $(function() {
+        $("tr").each(function () {
+           $(this).children().not('th').each(function (i) {
+              i = i+1;
+              $(this).addClass("item" + i);
+           });
+        });
+        $.fn.color = function() {
+           return this.each(function() {
+              $(this).css('background-color', '#eee');
+           });
+        };
+        $("tr").mouseout(function() {
+            $(this).children().css('background-color', '');
+        });
+        $("td").each(function() {
+            var selector = '.'+ $(this).attr('class');
+            $(this).hover(function(){
+                $(selector).color();
+                $(this).siblings().color();
+                //選択中のtdの背景色変更
+                $(this).css('background-color', '#ccc');
+            },function(){
+                $(selector).css('background-color', '');
+                $(this).parent().css('background-color', '');
+            });
+        });
+    });
+});
 function init(){
 };
-$( function() {
-    $( '#ajax-button' ) .click(
+/* リロードボタン */
+/*$( function() {
+    $( '#ajax-reload-button' ) .click(
         function() {
             $.ajax( {
                 url: './syogun_data.json',
                 dataType : 'text',
                 success: function( data ) {
-                	// ホストと通信を経て取得(ダウンロードした)JSONファイルはAjaxで取得する
-                	// TODO:武将データを展開して一覧形式で画面に表示したい
-                	// TODO:選択状態となった武将を何かのユニットに搭乗させたい
-                	// TODO:搭乗するユニットは指揮車のみとしたい
-                	var obj = JSON.parse(data);
+                    // ホストと通信を経て取得(ダウンロードした)JSONファイルはAjaxで取得する
+                    // TODO:武将データを展開して一覧形式で画面に表示したい
+                    // TODO:選択状態となった武将を何かのユニットに搭乗させたい
+                    // TODO:搭乗するユニットは指揮車のみとしたい
+                    var obj = JSON.parse(data);
                     $( '#sample-result' ).html( obj.header );
                 },
                 error: function( data ) {
@@ -48,20 +83,36 @@ $( function() {
         }
     );
 } );
+*/
+/* 選択して閉じるボタン */
+//$( function() {
+/*    $( '#ajax-close-button' ).click(
+        function(){
+            $.getJSON("syogun_data.json", function(data){
+                var selectedRowNumber = $("selectSyogun:checked").val();
+                parent.selectedSyogunName = data[0].person[selectedRowNumber].name;
+                parent.selectedSyogunAge = data[0].person[selectedRowNumber].age;
+                parent.selectedSyogunUnit = data[0].person[selectedRowNumber].unit;
+                parent.selectedSyogunTunk = data[0].person[selectedRowNumber].tunk;
+                parent.selectedSyogunFighter = data[0].person[selectedRowNumber].fighter;
+            });
+            window.close();
+        }
+    );*/
+//});
 </script>
 <style type="text/css"><!--
 #side-ruler{ position:absolute; left:600px;top:0px}
 #top-ruler{ position:absolute; left:0px;top:0px}
 --></style>
- </head>
+</head>
 <body onLoad="init()">
     <div id="output"></div>
-<!--    <input type="button" id="ajax-button" value="再読み込み"> -->
-<!--    <div id="sample-result"></div> -->
-<img src="top-ruler.bmp" id="side-ruler">
-<img src="side-ruler.bmp" id="top-ruler">
-<input type="button" id="ajax-button" value="選択" onClick="window.close();">
-<script>
-</script>
+    <!-- <input type="button" id="ajax-button" value="再読み込み"> -->
+    <!-- <div id="sample-result"></div> -->
+    <img src="top-ruler.bmp" id="side-ruler">
+    <img src="side-ruler.bmp" id="top-ruler">
+    <input type="button" id="ajax-reload-button" value="再検索">
+    <input type="button" id="ajax-close-button" value="選択して閉じる">
 </body>
 </html>

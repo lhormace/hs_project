@@ -28,6 +28,12 @@
     var eirianType = new Array(100);
     var eirianEnabledFlg = new Array(100);
     var lastCreateEirian = 0;
+    var selectedSyogunData = 0;
+    var selectedSyogunName; /* 選択済 将軍の名前 */
+    var selectedSyogunAge; /* 選択済 将軍の年齢 */
+    var selectedSyogunUnit; /* 選択済 将軍の対人攻撃力(補正値) */
+    var selectedSyogunTank; /* 選択済 将軍の対戦車攻撃力(補正値) */
+    var selectedSyogunTank; /* 選択済 将軍の対空攻撃力(補正値) */
 
     // カーソルのステータス
     // 0 --> 通常の状態
@@ -840,6 +846,7 @@ function drawBackGroundImage() {
 			</td>
 		</tr>
 	</table>
+	//TODO:JavaScriptのダイアログは、確認、アラート、入力、この３つしかないのは何故か？機能の強化は無いのか？
 </body>
 </html>
 
