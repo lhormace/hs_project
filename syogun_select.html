@@ -4,7 +4,7 @@
 <link href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js" type="text/javascript" ></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js" type="text/javascript"></script>
-<title>指揮車選択画面</title>
+<title>将軍選択画面</title>
 <script type="text/javascript">
 var str;
 $(document).ready(function(){
@@ -12,12 +12,12 @@ $(document).ready(function(){
     $.getJSON("./storage/share/syogun_data.json", function(data){
         str = "header： " + data.header;
         str = str + "<table border=1>";
-        str = str + "<tr><td>&nbsp;</td><td width=180>&nbsp;型番</td><td width=100>&nbsp;シリアル番号</td><td width=100>&nbsp;移動力</td><td width=100>&nbsp;修正値範囲</td>";
-/*        for(var i in data){
+        str = str + "<tr><td>&nbsp;</td><td width=180>&nbsp;名前</td><td width=100>&nbsp;対歩兵</td><td width=100>&nbsp;対戦車</td><td width=100>&nbsp;対空</td>";
+        for(var i in data){
             for(var j in data[i].person) {
                 str = str + "<tr><td><input type='radio' name='selectSyogun' value='" + j + "'></td><td>" + data[i].person[j].name + "</td><td>" + data[i].person[j].unit + "</td><td>" + data[i].person[j].tunk + "</td><td>" + data[i].person[j].fighter + "</td></tr>";
             }
-        }*/
+        }
         str = str + "</table>";
         $("#output").append(str);
         // マウスのフォーカスがあたった項目をハイライトさせる為の処理
@@ -102,7 +102,7 @@ $( function() {
                     // TODO:武将データを展開して一覧形式で画面に表示したい
                     // TODO:選択状態となった武将を何かのユニットに搭乗させたい
                     // TODO:搭乗するユニットは指揮車のみとしたい
-/*                    str = "header： " + data.header;
+                    str = "header： " + data.header;
                     str = str + "<table border=1>";
                     str = str + "<tr><td>&nbsp;</td><td width=180>&nbsp;名前</td><td width=100>&nbsp;対歩兵</td><td width=100>&nbsp;対戦車</td><td width=100>&nbsp;対空</td>";
                     for(var i in data){
@@ -113,7 +113,7 @@ $( function() {
                     str = str + "</table>";
                     $("#output").empty();
                     $("#output").append(str);
-*/
+
 //                    var obj = JSON.parse(data);
 //                    $( '#output' ).html( obj.header );
                     // マウスのフォーカスがあたった項目をハイライトさせる為の処理
@@ -157,7 +157,7 @@ $( function() {
 /* 選択して閉じるボタン */
 $( function() {
     $( '#ajax-close-button' ).click(
-/*        function(){
+        function(){
             $.getJSON("syogun_data.json", function(data){
                 var selectedRowNumber = $("selectSyogun:checked").val();
                 // 選択済である将軍のデータを呼び出し元に返す
@@ -168,7 +168,7 @@ $( function() {
                 parent.selectedSyogunUnit = data[0].person[selectedRowNumber].unit;
                 parent.selectedSyogunTunk = data[0].person[selectedRowNumber].tunk;
                 parent.selectedSyogunFighter = data[0].person[selectedRowNumber].fighter;
-            });}*/
+            });
             window.close();
         }
     );

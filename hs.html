@@ -29,11 +29,15 @@
     var eirianEnabledFlg = new Array(100);
     var lastCreateEirian = 0;
     var selectedSyogunData = 0;
+    var selectedSyogunFlg; /* 将軍を選択中：1、選択中ではない:0 */
+    var selectedSyogunSerialNo; /* 将軍を一意に指定するシステム内の番号 */
     var selectedSyogunName; /* 選択済 将軍の名前 */
     var selectedSyogunAge; /* 選択済 将軍の年齢 */
     var selectedSyogunUnit; /* 選択済 将軍の対人攻撃力(補正値) */
     var selectedSyogunTank; /* 選択済 将軍の対戦車攻撃力(補正値) */
     var selectedSyogunTank; /* 選択済 将軍の対空攻撃力(補正値) */
+    var selectedShikisyaFlg; /* 指揮車を選択中:1、選択中ではない:0 */
+    var selectedShikisyaSerialNo; /* 指揮車を選択中:1、選択中ではない:0 */
 
     // カーソルのステータス
     // 0 --> 通常の状態
@@ -80,29 +84,29 @@
      *
      */
     function clearCanvasDraw() {
-    	var img = new Image();
-    	img.src = "./pattern_128.gif";
-    	/* 画像を描画 */
-    	sideCtx.drawImage(img, 0, 0);
-    	sideCtx.drawImage(img, 49, 0);
-    	sideCtx.drawImage(img, 98, 0);
-    	sideCtx.drawImage(img, 147, 0);
-    	sideCtx.drawImage(img, 196, 0);
-    	sideCtx.drawImage(img, 0, 98);
-    	sideCtx.drawImage(img, 49, 98);
-    	sideCtx.drawImage(img, 98, 98);
-    	sideCtx.drawImage(img, 147, 98);
-    	sideCtx.drawImage(img, 196, 98);
-    	sideCtx.drawImage(img, 0, 196);
-    	sideCtx.drawImage(img, 49, 196);
-    	sideCtx.drawImage(img, 98, 196);
-    	sideCtx.drawImage(img, 147, 196);
-    	sideCtx.drawImage(img, 196, 196);
-    	sideCtx.drawImage(img, 0, 294);
-    	sideCtx.drawImage(img, 49, 294);
-    	sideCtx.drawImage(img, 98, 294);
-    	sideCtx.drawImage(img, 147, 294);
-    	sideCtx.drawImage(img, 196, 294);
+        var img = new Image();
+        img.src = "./pattern_128.gif";
+        /* 画像を描画 */
+        sideCtx.drawImage(img, 0, 0);
+        sideCtx.drawImage(img, 49, 0);
+        sideCtx.drawImage(img, 98, 0);
+        sideCtx.drawImage(img, 147, 0);
+        sideCtx.drawImage(img, 196, 0);
+        sideCtx.drawImage(img, 0, 98);
+        sideCtx.drawImage(img, 49, 98);
+        sideCtx.drawImage(img, 98, 98);
+        sideCtx.drawImage(img, 147, 98);
+        sideCtx.drawImage(img, 196, 98);
+        sideCtx.drawImage(img, 0, 196);
+        sideCtx.drawImage(img, 49, 196);
+        sideCtx.drawImage(img, 98, 196);
+        sideCtx.drawImage(img, 147, 196);
+        sideCtx.drawImage(img, 196, 196);
+        sideCtx.drawImage(img, 0, 294);
+        sideCtx.drawImage(img, 49, 294);
+        sideCtx.drawImage(img, 98, 294);
+        sideCtx.drawImage(img, 147, 294);
+        sideCtx.drawImage(img, 196, 294);
     }
 
     /**
@@ -110,11 +114,11 @@
      * param: unitNo 選択されたユニットの番号
      */
     function sideCanvasDraw(unitNo) {
-    	var img = new Image();
-    	img.src = "./pattern_128.gif";
+        var img = new Image();
+        img.src = "./pattern_128.gif";
 
-    	/* 画像を描画 */
-    	sideCtx.drawImage(img, 0, 0);
+        /* 画像を描画 */
+        sideCtx.drawImage(img, 0, 0);
         sideCtx.beginPath();
         sideCtx.fillStyle="rgb(255,255,255)";
         sideCtx.fillRect(0,0,500,300);
@@ -219,7 +223,7 @@
             var outerWhileCond = true;
 
             // 自軍のユニットを配置する
-		    while(outerWhileCond){
+            while(outerWhileCond){
                 if(counter > 10) {
                     outerWhileCond = false;
                 } else {
@@ -243,20 +247,20 @@
                     }
                  }
                  counter++;
-		   	}
+               }
 
-		    // ゲーム盤の仕切り線（マス目）を作成
-	        for(var j = 0; j < TOPX_SIZE; j++){
-	            for(var k = 0;k < TOPY_SIZE; k++){
-	                drawLeftUp(j, k, 64, 64, 64, MERGIN);
-	                drawRightUp(j, k, 64, 64, 64, MERGIN);
-	                drawLeftDown(j, k, 64, 64, 64, MERGIN);
-	                drawRightDown(j, k, 64, 64, 64, MERGIN);
-	            }
-	        }
+            // ゲーム盤の仕切り線（マス目）を作成
+            for(var j = 0; j < TOPX_SIZE; j++){
+                for(var k = 0;k < TOPY_SIZE; k++){
+                    drawLeftUp(j, k, 64, 64, 64, MERGIN);
+                    drawRightUp(j, k, 64, 64, 64, MERGIN);
+                    drawLeftDown(j, k, 64, 64, 64, MERGIN);
+                    drawRightDown(j, k, 64, 64, 64, MERGIN);
+                }
+            }
 
-	        // ゲーム盤の初期化（全て森のマスにする）
-	        drawBackGroundImage();
+            // ゲーム盤の初期化（全て森のマスにする）
+            drawBackGroundImage();
 
             /* マウスハンドラのイベント取得を開始 */
             document.onmousemove = getMouseXY;
@@ -268,14 +272,14 @@
             // イベントリスナーに対応している
             if (document.addEventListener) {
 
-	        // キーボードを押したときに実行されるイベント
-	        document.addEventListener("keydown" , KeyDownFunc);
+            // キーボードを押したときに実行されるイベント
+            document.addEventListener("keydown" , KeyDownFunc);
 
                 // アタッチイベントに対応している
             } else if(document.attachEvent) {
 
-	        // キーボードを押したときに実行されるイベント
-	        document.attachEvent("onkeydown" , KeyDownFunc);
+            // キーボードを押したときに実行されるイベント
+            document.attachEvent("onkeydown" , KeyDownFunc);
 
             }
 
@@ -285,7 +289,7 @@
        //TODO:カーソルが点滅すべきだ
 
 　　　　    }
-	}
+    }
 
     /* 左上の枠 */
     function drawLeftUp(j, k, r, g, b, mergin){
@@ -349,7 +353,7 @@
 
     function draw(){
 
-    	// 自軍のユニットをすべて書き直す
+        // 自軍のユニットをすべて書き直す
         clearUnitsAll();
         setUnitsAll();
 
@@ -362,11 +366,11 @@
 
         // マウスが選択状態である場合選択した箇所を黄色に塗りつぶす(消された場合の為に書き直す)
         if (cursorStatus == 1) {
-	        ctx.beginPath();
-	        ctx.fillStyle="rgb(255,250,15)";
-	        ctx.fillRect((selectedCursorX-1)*50+2,(selectedCursorY-1)*50+2,47,47);
-	        ctx.closePath();
-	        ctx.stroke();
+            ctx.beginPath();
+            ctx.fillStyle="rgb(255,250,15)";
+            ctx.fillRect((selectedCursorX-1)*50+2,(selectedCursorY-1)*50+2,47,47);
+            ctx.closePath();
+            ctx.stroke();
         }
 
     }
@@ -377,14 +381,14 @@
 
         // カーソルを押下した状態かつユニットを選択した状態である
         if (cursorStatus == 1) {
-        	// 前回反転した色を元に戻す
+            // 前回反転した色を元に戻す
             ctx.beginPath();
             ctx.fillStyle="rgb(255,255,255)";
             ctx.fillRect((oldCursorX-1)*50+2,(oldCursorY-1)*50+2,47,47);
             ctx.closePath();
             ctx.stroke();
 
-        	// 画面上を移動したマウスポインタに該当するカーソル位置の色を反転する。
+            // 画面上を移動したマウスポインタに該当するカーソル位置の色を反転する。
             ctx.beginPath();
             ctx.fillStyle="rgb(128,128,255)";
             ctx.fillRect((targetCursorX-1)*50+2,(targetCursorY-1)*50+2,47,47);
@@ -419,29 +423,29 @@
 
         // カーソルの選択状態を判定する
         if (cursorStatus == 0) {
-        	// カーソルが通常の状態の場合は、押下した位置にユニットがあるか否かを判定する。
-        	for (var i=0; i<NUM; i++) {
-        		if ((targetCursorX == unitX[i]) && (targetCursorY == unitY[i])) {
-        			// 一致するユニットがあった場合
-        			// 画面右上のユニット情報領域に、ユニットのステータスを表示する
-        			sideCanvasDraw(i);
-        			// ユニットは選択状態の画像に変更する
+            // カーソルが通常の状態の場合は、押下した位置にユニットがあるか否かを判定する。
+            for (var i=0; i<NUM; i++) {
+                if ((targetCursorX == unitX[i]) && (targetCursorY == unitY[i])) {
+                    // 一致するユニットがあった場合
+                    // 画面右上のユニット情報領域に、ユニットのステータスを表示する
+                    sideCanvasDraw(i);
+                    // ユニットは選択状態の画像に変更する
 
-        			// カーソルも選択状態の色（青色）に変更する
+                    // カーソルも選択状態の色（青色）に変更する
 
-        			// ステータスは０(通常)-->1(選択状態)へ変更する
-        			cursorStatus = 1;
+                    // ステータスは０(通常)-->1(選択状態)へ変更する
+                    cursorStatus = 1;
 
-        			// 選択状態のユニットの番号を保持する。
-        			selectedUnitNo = i;
+                    // 選択状態のユニットの番号を保持する。
+                    selectedUnitNo = i;
 
-        			// 選択した位置を保持する。
-        			selectedCursorX = targetCursorX;
-        			selectedCursorY = targetCursorY;
-        		}
-        	}
+                    // 選択した位置を保持する。
+                    selectedCursorX = targetCursorX;
+                    selectedCursorY = targetCursorY;
+                }
+            }
 
-        	// 選択状態では無い場合はあたり判定を行い、射程距離以内であれば、エイリアンに傷を負わせる
+            // 選択状態では無い場合はあたり判定を行い、射程距離以内であれば、エイリアンに傷を負わせる
             for (var i=0; i<NUM; i++){
                 if(targetCursorX - 1 == unitX[i]){
                     if(targetCursorY - 1 == unitY[i]){
@@ -486,92 +490,92 @@
                 var ret = destroyEirian();
                 if (ret == 1) {
                     // 破壊した場合は、カーソルを赤色に描画
-        	        ctx.beginPath();
-        	        ctx.fillStyle="rgb(255,32,32)";
-        	        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
-        	        ctx.closePath();
-        	        ctx.stroke();
+                    ctx.beginPath();
+                    ctx.fillStyle="rgb(255,32,32)";
+                    ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+                    ctx.closePath();
+                    ctx.stroke();
                 } else {
                     // 攻撃範囲に的がいなかった場合は通常のカーソルを描画
                     if (cursorStatus == 0) {
-                    	// 自軍ユニット未選択状態の場合は、カーソルの色は「黒」でぬりつぶす。
-        		        ctx.beginPath();
-        		        ctx.fillStyle="rgb(32,32,32)";
-        		        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
-        		        ctx.closePath();
-        		        ctx.stroke();
+                        // 自軍ユニット未選択状態の場合は、カーソルの色は「黒」でぬりつぶす。
+                        ctx.beginPath();
+                        ctx.fillStyle="rgb(32,32,32)";
+                        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+                        ctx.closePath();
+                        ctx.stroke();
                     } else if (cursorStatus == 1) {
-                    	// 自軍ユニット未選択状態の場合は、カーソルの色は「青」でぬりつぶす。
-        		        ctx.beginPath();
-        		        ctx.fillStyle="rgb(32,32,255)";
-        		        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
-        		        ctx.closePath();
-        		        ctx.stroke();
+                        // 自軍ユニット未選択状態の場合は、カーソルの色は「青」でぬりつぶす。
+                        ctx.beginPath();
+                        ctx.fillStyle="rgb(32,32,255)";
+                        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+                        ctx.closePath();
+                        ctx.stroke();
                     }
                 }
             } else {
                 // UNITの攻撃範囲外は通常のカーソルを描画
                 if (cursorStatus == 0) {
-                	// 自軍ユニット未選択状態の場合は、カーソルの色は「黒」でぬりつぶす。
-    		        ctx.beginPath();
-    		        ctx.fillStyle="rgb(32,32,32)";
-    		        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
-    		        ctx.closePath();
-    		        ctx.stroke();
+                    // 自軍ユニット未選択状態の場合は、カーソルの色は「黒」でぬりつぶす。
+                    ctx.beginPath();
+                    ctx.fillStyle="rgb(32,32,32)";
+                    ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+                    ctx.closePath();
+                    ctx.stroke();
                 } else if (cursorStatus == 1) {
-                	// 自軍ユニット未選択状態の場合は、カーソルの色は「青」でぬりつぶす。
-    		        ctx.beginPath();
-    		        ctx.fillStyle="rgb(32,32,255)";
-    		        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
-    		        ctx.closePath();
-    		        ctx.stroke();
+                    // 自軍ユニット未選択状態の場合は、カーソルの色は「青」でぬりつぶす。
+                    ctx.beginPath();
+                    ctx.fillStyle="rgb(32,32,255)";
+                    ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+                    ctx.closePath();
+                    ctx.stroke();
                 }
             }
 
         } else if (cursorStatus == 1) {
-        	// カーソルが選択状態である場合
+            // カーソルが選択状態である場合
 
-        	// 1. 新たにクリックした場所に、敵が存在している場合、移動できない
-        	for (var i=0; i<MAX_EIRIAN_NUM; i++) {
-				eirianFoundFlg = 0;
-        		if ((targetCursorX == eirianX[i]) && (targetCursorY == eirianY[i])) {
-        			eirianFoundFlg = 1;
-        			break;
-        		}
-        	}
-        	// 2. 新たにクリックした場所に、味方のユニットが存在している？
-        	if (eirianFoundFlg == 0) {
-	        	for (var i=0; i<NUM; i++) {
-					eirianFoundFlg = 0;
-	        		if ((targetCursorX == unitX[i]) && (targetCursorY == unitY[i])) {
-	        			unitFoundFlg = 1;
-	        			break;
-	        		}
-	        	}
-        	}
+            // 1. 新たにクリックした場所に、敵が存在している場合、移動できない
+            for (var i=0; i<MAX_EIRIAN_NUM; i++) {
+                eirianFoundFlg = 0;
+                if ((targetCursorX == eirianX[i]) && (targetCursorY == eirianY[i])) {
+                    eirianFoundFlg = 1;
+                    break;
+                }
+            }
+            // 2. 新たにクリックした場所に、味方のユニットが存在している？
+            if (eirianFoundFlg == 0) {
+                for (var i=0; i<NUM; i++) {
+                    eirianFoundFlg = 0;
+                    if ((targetCursorX == unitX[i]) && (targetCursorY == unitY[i])) {
+                        unitFoundFlg = 1;
+                        break;
+                    }
+                }
+            }
 
-        	// 3. 移動先が既にユニットで埋まっていなければ、カーソル位置へ選択済みのユニットを動かす
-        	if ((eirianFoundFlg == 0) && (unitFoundFlg == 0)) {
-        		unitX[selectedUnitNo] = targetCursorX;
-        		unitY[selectedUnitNo] = targetCursorY;
-        	}
+            // 3. 移動先が既にユニットで埋まっていなければ、カーソル位置へ選択済みのユニットを動かす
+            if ((eirianFoundFlg == 0) && (unitFoundFlg == 0)) {
+                unitX[selectedUnitNo] = targetCursorX;
+                unitY[selectedUnitNo] = targetCursorY;
+            }
 
-        	// TODO:未着手少し後回し(難易度高い)判定方法：ユニットの移動距離はクリアしているか？（ユニットの移動距離の範囲外であれば、エラーを出力する）
+            // TODO:未着手少し後回し(難易度高い)判定方法：ユニットの移動距離はクリアしているか？（ユニットの移動距離の範囲外であれば、エラーを出力する）
 
-        	// 4. ユニットの画像を変更する。（任意の場所に動く）
+            // 4. ユニットの画像を変更する。（任意の場所に動く）
 
-        	// 5. カーソルを元に戻す
-        	cursorStatus = 0;
+            // 5. カーソルを元に戻す
+            cursorStatus = 0;
 
-        	// 6. サイドメニューのステータスは消される
-        	clearCanvasDraw();
+            // 6. サイドメニューのステータスは消される
+            clearCanvasDraw();
 
-        	// 7. カーソルは選択状態ではなくなったので元の色に戻す
- 	        ctx.beginPath();
-   	        ctx.fillStyle="rgb(255,255,255)";
-   	        ctx.fillRect((selectedCursorX-1)*50+2,(selectedCursorY-1)*50+2,47,47);
-   	        ctx.closePath();
-   	        ctx.stroke();
+            // 7. カーソルは選択状態ではなくなったので元の色に戻す
+             ctx.beginPath();
+               ctx.fillStyle="rgb(255,255,255)";
+               ctx.fillRect((selectedCursorX-1)*50+2,(selectedCursorY-1)*50+2,47,47);
+               ctx.closePath();
+               ctx.stroke();
         }
 
         /* 味方ユニットの選択状態 */
@@ -587,7 +591,7 @@
 
 function destroyEirian() {
     console.log("destoryEirian() start.");
-	for(var i=0; i<MAX_EIRIAN_NUM; i++) {
+    for(var i=0; i<MAX_EIRIAN_NUM; i++) {
         if((eirianX[i] == nowCursorX) && (eirianY[i] == nowCursorY)) {
             console.log("eirianX[" + i + "]:" + eirianX[i] + " == nowCursorX[" + i + "]:"+ nowCursorX + "]");
             // エイリアンは破壊されるので無効状態になる
@@ -596,8 +600,8 @@ function destroyEirian() {
             return 1; // 破壊
         }
     }
-	return 0; // 破壊しなかった
-	// todo:敵を破壊した音が必要
+    return 0; // 破壊しなかった
+    // todo:敵を破壊した音が必要
 }
 
 // ------------------------------------------------------------
@@ -605,21 +609,21 @@ function destroyEirian() {
 // ------------------------------------------------------------
 function KeyDownFunc(e){
 
-	// ------------------------------------------------------------
-	// 入力情報を取得
-	// ------------------------------------------------------------
-	// キーコード
-	var key_code = e.keyCode;
-	// Shiftキーの押下状態
-	var shift_key = e.shiftKey;
-	// Ctrlキーの押下状態
-	var ctrl_key = e.ctrlKey;
-	// Altキーの押下状態
-	var alt_key = e.altKey;
+    // ------------------------------------------------------------
+    // 入力情報を取得
+    // ------------------------------------------------------------
+    // キーコード
+    var key_code = e.keyCode;
+    // Shiftキーの押下状態
+    var shift_key = e.shiftKey;
+    // Ctrlキーの押下状態
+    var ctrl_key = e.ctrlKey;
+    // Altキーの押下状態
+    var alt_key = e.altKey;
 
-	// ------------------------------------------------------------
-	// 出力テスト
-	// ------------------------------------------------------------
+    // ------------------------------------------------------------
+    // 出力テスト
+    // ------------------------------------------------------------
         console.log("code:" + key_code);
         pressedKey = key_code;
 
@@ -629,13 +633,13 @@ function KeyDownFunc(e){
 
 function CommandInput()
 {
-	// キーボードよりsもしくはSが入力された場合、敵のステータス情報をコンソールに出力する。
-	if (pressedKey == 83 || pressedKey == 115) {
-		console.log("MAX_EIRIAN_NUM[" + MAX_EIRIAN_NUM + "]");
-		for (var i=0; i< MAX_EIRIAN_NUM; i++) {
-			console.log("EIRIAN[" + i + "] X:" + eirianX[i] + " Y:" + eirianY[i] + " TYPE:" + eirianType[i] + " eirianEnabledFlg:" + eirianEnabledFlg[i]);
-		}
-	}
+    // キーボードよりsもしくはSが入力された場合、敵のステータス情報をコンソールに出力する。
+    if (pressedKey == 83 || pressedKey == 115) {
+        console.log("MAX_EIRIAN_NUM[" + MAX_EIRIAN_NUM + "]");
+        for (var i=0; i< MAX_EIRIAN_NUM; i++) {
+            console.log("EIRIAN[" + i + "] X:" + eirianX[i] + " Y:" + eirianY[i] + " TYPE:" + eirianType[i] + " eirianEnabledFlg:" + eirianEnabledFlg[i]);
+        }
+    }
 }
 
 function CursorDraw()
@@ -647,20 +651,20 @@ function CursorDraw()
     ctx.closePath();
     ctx.stroke();
 
-	if (pressedKey == 98 || pressedKey == 40)
-	{
+    if (pressedKey == 98 || pressedKey == 40)
+    {
             nowCursorY = nowCursorY + 1;
     }
-	if (pressedKey == 104 || pressedKey == 38)
-	{
+    if (pressedKey == 104 || pressedKey == 38)
+    {
              nowCursorY = nowCursorY - 1;
     }
-	if (pressedKey == 100 || pressedKey == 37)
-	{
+    if (pressedKey == 100 || pressedKey == 37)
+    {
              nowCursorX = nowCursorX - 1;
     }
-	if (pressedKey == 102 || pressedKey == 39)
-	{
+    if (pressedKey == 102 || pressedKey == 39)
+    {
              nowCursorX = nowCursorX + 1;
     }
     pressedKey = 0;
@@ -677,17 +681,17 @@ function CursorDraw()
     ctx.stroke();
 }
 function clearUnitsAll(){
-	// カーソルの選択状態が「未選択」でなければユニットの再描画は行わない。
-	// TODO:毎回全部の自軍ユニットを書き直すと重くなるので、必要なものだけを書き直すように設計をしたい。
-	if (cursorStatus == 0) {
-	    for(var i=0;i<NUM;i++) {
-	        ctx.beginPath();
-	        ctx.fillStyle="rgb(155,255,255)";
-	        ctx.fillRect((unitX[i]-1)*50+2, (unitY[i]-1)*50+2,47,47);
-	        ctx.closePath();
-	        ctx.stroke();
-	    }
-	}
+    // カーソルの選択状態が「未選択」でなければユニットの再描画は行わない。
+    // TODO:毎回全部の自軍ユニットを書き直すと重くなるので、必要なものだけを書き直すように設計をしたい。
+    if (cursorStatus == 0) {
+        for(var i=0;i<NUM;i++) {
+            ctx.beginPath();
+            ctx.fillStyle="rgb(155,255,255)";
+            ctx.fillRect((unitX[i]-1)*50+2, (unitY[i]-1)*50+2,47,47);
+            ctx.closePath();
+            ctx.stroke();
+        }
+    }
 }
 
 /**
@@ -695,7 +699,7 @@ function clearUnitsAll(){
  *
  */
 function setUnitsAll(){
-	// TODO:毎回全部の自軍ユニットを書き直すと重くなるので、必要なものだけを書き直すように設計をしたい。
+    // TODO:毎回全部の自軍ユニットを書き直すと重くなるので、必要なものだけを書き直すように設計をしたい。
     for(var i=0;i<NUM;i++) {
         var img = new Image();
         if(unitType[i] == 0){
@@ -726,7 +730,7 @@ function setUnitsAll(){
             img.src="FIGHTER_LV03.gif";
         }
         if ((cursorStatus == 0) || ((cursorStatus == 1) && (selectedUnitNo != i)) ) {
-        	// カーソルが選択状態では無い場合、もしくは選択状態ではあるが掴んだユニットでは無い場合描画
+            // カーソルが選択状態では無い場合、もしくは選択状態ではあるが掴んだユニットでは無い場合描画
             ctx.drawImage(img,(unitX[i]-1)*50+2,(unitY[i]-1)*50+2,47,47);
         }
     }
@@ -805,9 +809,9 @@ function drawBackGroundImage() {
     img.src="./background-image-wood01.jpg";
 
     for(var i=0;i<=TOPX_SIZE;i++) {
-    	for(var j=0;j<=TOPY_SIZE;j++){
-    		ctx.drawImage(img,i*50+2,j*50+2);
-    	}
+        for(var j=0;j<=TOPY_SIZE;j++){
+            ctx.drawImage(img,i*50+2,j*50+2);
+        }
     }
 }
 
@@ -816,37 +820,37 @@ function drawBackGroundImage() {
 
 </head>
 <body onLoad="init()" scroll="no"
-	style="overflow: hidden; position: fixed; background-color: #909090; height: 650px;">
-	<table style="background-image: url('./pattern_148.gif');">
-		<tr>
-			<td>
-				<div>
-					<canvas id="main_canvas" height="500" width="500"></canvas>
-				</div>
-			</td>
-			<td>
-				<div style="background-image: url('./pattern_128.gif');">
-					<canvas id="side_canvas" height="450" width="150"></canvas>
-				</div>
-				<div>
-				    <input type="button" name="btn_shikisya" value="指揮車" onClick="javascript:window.open('./shikisya_select.html', '指揮車選択画面', 'width=400, height=300, menubar=no, toolbar=no, location=no, status=no, resizable=no, scrollbars=yes');">
-				    <input type="button" name="btn_shikisya" value="将　軍">
-				</div>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<div>
-					<canvas id="message_window" height="150" width="500"></canvas>
-				</div>
-			</td>
-			<td style="font-size: 6pt; background-color: #FFFFFF"><a
-				href="http://www.squidfingers.com/patterns/">http://www.squidfingers.com/patterns/</a><br>
-				<a href="http://photo.v-colors.com/" target="_blank" title="PHOTO STOCKER -高解像度の無料写真素材-へのリンク"><img src="http://photo.v-colors.com/images/bnPhoto200x50.jpg" alt="PHOTO STOCKER -高解像度の無料写真素材-" /></a>
-			</td>
-		</tr>
-	</table>
-	//TODO:JavaScriptのダイアログは、確認、アラート、入力、この３つしかないのは何故か？機能の強化は無いのか？
+    style="overflow: hidden; position: fixed; background-color: #909090; height: 650px;">
+    <table style="background-image: url('./pattern_148.gif');">
+        <tr>
+            <td>
+                <div>
+                    <canvas id="main_canvas" height="500" width="500"></canvas>
+                </div>
+            </td>
+            <td>
+                <div style="background-image: url('./pattern_128.gif');">
+                    <canvas id="side_canvas" height="450" width="150"></canvas>
+                </div>
+                <div>
+                    <input type="button" name="btn_shikisya" value="指揮車" onClick="javascript:window.open('./shikisya_select.html', '指揮車選択画面', 'width=600, height=500, menubar=no, toolbar=no, location=no, status=no, resizable=no, scrollbars=yes');">>
+                    <input type="button" name="btn_shikisya" value="将　軍" onClick="javascript:window.open('./syogun_select.html', '将軍選択画面', 'width=600, height=500, menubar=no, toolbar=no, location=no, status=no, resizable=no, scrollbars=yes');">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div>
+                    <canvas id="message_window" height="150" width="500"></canvas>
+                </div>
+            </td>
+            <td style="font-size: 6pt; background-color: #FFFFFF"><a
+                href="http://www.squidfingers.com/patterns/">http://www.squidfingers.com/patterns/</a><br>
+                <a href="http://photo.v-colors.com/" target="_blank" title="PHOTO STOCKER -高解像度の無料写真素材-へのリンク"><img src="http://photo.v-colors.com/images/bnPhoto200x50.jpg" alt="PHOTO STOCKER -高解像度の無料写真素材-" /></a>
+            </td>
+        </tr>
+    </table>
+    //TODO:JavaScriptのダイアログは、確認、アラート、入力、この３つしかないのは何故か？機能の強化は無いのか？
 </body>
 </html>
 
