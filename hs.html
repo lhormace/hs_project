@@ -376,8 +376,8 @@
     }
 
     function getMouseXY(event){
-        var targetCursorX = Math.floor((event.clientX - 8) / 50) + 1;
-        var targetCursorY = Math.floor((event.clientY - 8) / 50) + 1;
+        var targetCursorX = Math.floor((event.clientX - 38) / 50) + 1;
+        var targetCursorY = Math.floor((event.clientY - 64) / 50) + 1;
 
         // カーソルを押下した状態かつユニットを選択した状態である
         if (cursorStatus == 1) {
@@ -413,8 +413,8 @@
         ctx.closePath();
         ctx.stroke();
 
-        var targetCursorX = Math.floor((event.clientX - 8) / 50) + 1;
-        var targetCursorY = Math.floor((event.clientY - 8) / 50) + 1;
+        var targetCursorX = Math.floor((event.clientX - 38) / 50) + 1;
+        var targetCursorY = Math.floor((event.clientY - 64) / 50) + 1;
 
         console.log("MOUSE DOWN PRESSED targetCursorX[" + targetCursorX + "] targetCursorY[" + targetCursorY + "] screenX[" + event.screenX + "] screenY[" + event.screenY + "] pageX[" + event.pageX + "] pageY[" + event.pageY + "] clientX[" + event.clientX + "] clientY[" + event.clientY + "] offsetX[" + event.offsetX + "] offsetY[" + event.offsetY + "]");
 
@@ -820,37 +820,82 @@ function drawBackGroundImage() {
 
 </head>
 <body onLoad="init()" scroll="no"
-    style="overflow: hidden; position: fixed; background-color: #909090; height: 650px;">
-    <table style="background-image: url('./pattern_148.gif');">
+    style="overflow: hidden; background-color: #909090; width: 720px">
+    <table style="background-color:#70ffff; height: 100%; width:100%" border="1"><tr><td>
+    <table style="" border="1">
         <tr>
             <td>
-                <div>
-                    <canvas id="main_canvas" height="500" width="500"></canvas>
-                </div>
-            </td>
-            <td>
-                <div style="background-image: url('./pattern_128.gif');">
-                    <canvas id="side_canvas" height="450" width="150"></canvas>
-                </div>
-                <div>
-                    <input type="button" name="btn_shikisya" value="指揮車" onClick="javascript:window.open('./shikisya_select.html', '指揮車選択画面', 'width=600, height=500, menubar=no, toolbar=no, location=no, status=no, resizable=no, scrollbars=yes');">>
-                    <input type="button" name="btn_shikisya" value="将　軍" onClick="javascript:window.open('./syogun_select.html', '将軍選択画面', 'width=600, height=500, menubar=no, toolbar=no, location=no, status=no, resizable=no, scrollbars=yes');">
-                </div>
+                <table border="1" style="width:100%">
+                    <tr>
+                        <td style="background-color:#90ffff">&nbsp;
+                        </td>
+                        <td style="background-color:#90ffff">&nbsp;
+                        </td>
+                        <td style="background-color:#90ffff">&nbsp;
+                        </td>
+                    </tr>
+                </table>
             </td>
         </tr>
         <tr>
             <td>
-                <div>
-                    <canvas id="message_window" height="150" width="500"></canvas>
-                </div>
+                <table border="1">
+                    <tr>
+                        <td style="background-color:#90ffff">&nbsp;
+                        </td>
+                        <td>
+                            <div>
+                                <canvas id="main_canvas" height="500" width="500"></canvas>
+                            </div>
+                        </td>
+                        <td style="background-color:#90ffff">&nbsp;
+                        </td>
+                    </tr>
+                </table>
             </td>
-            <td style="font-size: 6pt; background-color: #FFFFFF"><a
-                href="http://www.squidfingers.com/patterns/">http://www.squidfingers.com/patterns/</a><br>
-                <a href="http://photo.v-colors.com/" target="_blank" title="PHOTO STOCKER -高解像度の無料写真素材-へのリンク"><img src="http://photo.v-colors.com/images/bnPhoto200x50.jpg" alt="PHOTO STOCKER -高解像度の無料写真素材-" /></a>
+        </tr>
+        <tr>
+            <td>
+                <table border="1" style="width:100%">
+                    <tr>
+                        <td style="background-color:#90ffff">&nbsp;
+                        </td>
+                        <td style="background-color:#90ffff">&nbsp;
+                        </td>
+                        <td style="background-color:#90ffff">&nbsp;
+                        </td>
+                    </tr>
+                </table>
             </td>
         </tr>
     </table>
-    //TODO:JavaScriptのダイアログは、確認、アラート、入力、この３つしかないのは何故か？機能の強化は無いのか？
+    </td><td>
+    <table style="background-color:#0000ff">
+        <tr>
+            <td>
+                <div style="background-color:#00ff00">
+                    <canvas id="side_canvas" height="450" width="150"></canvas>
+                </div>
+                <input type="button" name="btn_shikisya" value="指揮車" onClick="javascript:window.open('./shikisya_select.html', '指揮車選択画面', 'width=600, height=500, menubar=no, toolbar=no, location=no, status=no, resizable=no, scrollbars=yes');">
+                <input type="button" name="btn_shikisya" value="将　軍" onClick="javascript:window.open('./syogun_select.html', '将軍選択画面', 'width=600, height=500, menubar=no, toolbar=no, location=no, status=no, resizable=no, scrollbars=yes');">
+            </td>
+        </tr>
+    </table>
+    </td></tr>
+    <tr><td>
+    <table style="background-color:#c0c0c0">
+        <tr>
+            <td>
+                <div>
+                    <canvas id="message_window" height="100" width="539"></canvas>
+                </div>
+            </td>
+        </tr>
+    </table>
+    </td>
+    <td>&nbsp;
+    </td></tr>
+    </table>
 </body>
 </html>
 
