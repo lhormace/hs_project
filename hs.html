@@ -107,6 +107,10 @@
                      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ];
+    var oldBaseTopX = 0;
+    var oldBaseTopY = 0;
+    var baseTopX = 0;
+    var baseTopY = 0;
     const NUM = 10;
     var unitType = new Array(10);
     var unitX = new Array(10);
@@ -160,6 +164,13 @@
     // カーソルを選択した際に始点となり、解放されていない位置
     var selectedCursorX = 0;
     var selectedCursorY = 0;
+
+    // マウスの左クリックをした瞬間の座標
+    var whenMouseDownX = 0;
+    var whenMouseDownY = 0;
+    // マウスの左クリックを離した瞬間の座標
+    var whenMouseUpX = 0;
+    var whenMouseUpY = 0;
 
     function newMessage(message) {
         messageWindowCtx.beginPath();
@@ -384,6 +395,7 @@
             /* マウスハンドラのイベント取得を開始 */
             document.onmousemove = getMouseXY;
             document.onmousedown = getMouseDown;
+            document.onmouseup = getMouseUp;
 
             // ------------------------------------------------------------
             // イベントのリッスンを開始する
@@ -472,6 +484,12 @@
 
     /* X座標のルーラー描画 */
     function xBarWrite(stNum, edNum, sumCnt, cycle, r, g, b){
+        // ルーラーは初期化
+        x_bar_ctx.beginPath();
+        x_bar_ctx.fillStyle="rgb(255,255,255)";
+        x_bar_ctx.fillRect(0,0,500,15);
+        x_bar_ctx.closePath();
+        x_bar_ctx.stroke();
         var cycleCnt = 0;
         x_bar_ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
         x_bar_ctx.fillStyle = "black";
@@ -484,7 +502,7 @@
             x_bar_ctx.lineTo(cycleCnt*50+21, 15);
             x_bar_ctx.closePath();
             x_bar_ctx.stroke();
-            x_bar_ctx.fillText(cycleCnt, cycleCnt*50+44, 2);
+            x_bar_ctx.fillText(cycleCnt + baseTopX, cycleCnt*50+44, 2);
             cycleCnt++;
             // cycleを超えたらループは強制的に抜ける
             if (cycleCnt >= cycle) {
@@ -492,13 +510,17 @@
             }
         }
 
-        alert(cycleCnt);
-
     }
 
 
     /* Y座標のルーラー描画 */
     function yBarWrite(stNum, edNum, sumCnt, cycle, r, g, b){
+        // ルーラーは初期化
+        y_bar_ctx.beginPath();
+        y_bar_ctx.fillStyle="rgb(255,255,255)";
+        y_bar_ctx.fillRect(0,0,15,500);
+        y_bar_ctx.closePath();
+        y_bar_ctx.stroke();
         var cycleCnt = 0;
         y_bar_ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
         y_bar_ctx.fillStyle = "black";
@@ -511,15 +533,13 @@
             y_bar_ctx.lineTo(15, cycleCnt*50);
             y_bar_ctx.closePath();
             y_bar_ctx.stroke();
-            y_bar_ctx.fillText(cycleCnt, 5, cycleCnt*50+20);
+            y_bar_ctx.fillText(cycleCnt + baseTopY, 5, cycleCnt*50+20);
             cycleCnt++;
             // cycleを超えたらループは強制的に抜ける
             if (cycleCnt >= cycle) {
                 break;
             }
         }
-
-        alert(cycleCnt);
 
     }
 
@@ -535,6 +555,11 @@
         // エイリアンのユニットをすべて書き直す
         clearEirian();
         setEirian();
+
+        // X座標ルーラーの書き直し
+        xBarWrite(10, 100, 10, 10, 0, 0, 0);
+        // Y座標ルーラーの書き直し
+        yBarWrite(10, 100, 10, 10, 0, 0, 0);
 
         // マウスが選択状態である場合選択した箇所を黄色に塗りつぶす(消された場合の為に書き直す)
         if (cursorStatus == 1) {
@@ -573,10 +598,41 @@
         }
     }
 
+    function getMouseUp(event){
+        var movedX;
+        var movedY;
+        whenMouseUpX = event.clientX;
+        whenMouseUpY = event.clientY;
+
+        var substrMouseX = whenMouseDownX - whenMouseUpX;
+        if ((substrMouseX < 25) || (substrMouseX > -25)) {
+            movedX = Math.ceil(substrMouseX / 50);
+        }
+        var substrMouseY = whenMouseDownY - whenMouseUpY;
+        if ((substrMouseY < 25) || (substrMouseY > -25)) {
+            movedY = Math.ceil(substrMouseY / 50);
+        }
+        baseTopX = baseTopX + movedX;
+        if(baseTopX < 0) {
+            baseTopX = 0;
+        } else if (baseTopX > 100) {
+            baseTopX = 100;
+        }
+        baseTopY = baseTopY + movedY;
+        if(baseTopY < 0) {
+            baseTopY = 0;
+        } else if (baseTopY > 100) {
+            baseTopY = 100;
+        }
+    }
+
     function getMouseDown(event){
         var check_eirian_hit = 0;
         var unitFoundFlg = 0;
         var eirianFoundFlg = 0;
+
+        oldBaseTopX = baseTopX;
+        oldBaseTopY = baseTopY;
 
         // 移動前のカーソルを消す
         ctx.beginPath();
@@ -586,7 +642,9 @@
         ctx.stroke();
 
         var targetCursorX = Math.floor((event.clientX - 38) / 50) + 1;
+        whenMouseDownX = event.clientX;
         var targetCursorY = Math.floor((event.clientY - 64) / 50) + 1;
+        whenMouseDownY = event.clientY;
 
         console.log("MOUSE DOWN PRESSED targetCursorX[" + targetCursorX + "] targetCursorY[" + targetCursorY + "] screenX[" + event.screenX + "] screenY[" + event.screenY + "] pageX[" + event.pageX + "] pageY[" + event.pageY + "] clientX[" + event.clientX + "] clientY[" + event.clientY + "] offsetX[" + event.offsetX + "] offsetY[" + event.offsetY + "]");
 
@@ -845,7 +903,6 @@ function CursorDraw()
     ctx.beginPath();
     ctx.fillStyle="rgb(32,32,32)";
     if (cursorStatus == 0) {
-//    	alert(1);
     }
     ctx.fillStyle="rgb(32,32,255)";
     ctx.fillRect(nowCursorX*50+2,nowCursorY*50+2,47,47);
@@ -857,11 +914,15 @@ function clearUnitsAll(){
     // TODO:毎回全部の自軍ユニットを書き直すと重くなるので、必要なものだけを書き直すように設計をしたい。
     if (cursorStatus == 0) {
         for(var i=0;i<NUM;i++) {
-            ctx.beginPath();
-            ctx.fillStyle="rgb(155,255,255)";
-            ctx.fillRect((unitX[i]-1)*50+2, (unitY[i]-1)*50+2,47,47);
-            ctx.closePath();
-            ctx.stroke();
+            if (((unitX[i] - oldBaseTopX) >= 0) && ((unitX[i] - oldBaseTopX) < 10)){
+                if (((unitY[i] - oldBaseTopY) >= 0) && ((unitY[i] - oldBaseTopY) < 10)) {
+                    ctx.beginPath();
+                    ctx.fillStyle="rgb(255,255,255)";
+                    ctx.fillRect((unitX[i]-oldBaseTopX)*50+2, (unitY[i]-oldBaseTopY)*50+2,47,47);
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+            }
         }
     }
 }
@@ -903,7 +964,11 @@ function setUnitsAll(){
         }
         if ((cursorStatus == 0) || ((cursorStatus == 1) && (selectedUnitNo != i)) ) {
             // カーソルが選択状態では無い場合、もしくは選択状態ではあるが掴んだユニットでは無い場合描画
-            ctx.drawImage(img,(unitX[i]-1)*50+2,(unitY[i]-1)*50+2,47,47);
+            if (((unitX[i] - baseTopX) >= 0) && ((unitX[i] - baseTopX) < 10)){
+                if (((unitY[i] - baseTopY) >= 0) && ((unitY[i] - baseTopY) < 10)) {
+                    ctx.drawImage(img,(unitX[i]-baseTopX)*50+2,(unitY[i]-baseTopY)*50+2,47,47);
+                }
+            }
         }
     }
 }
@@ -955,12 +1020,18 @@ function createNewEirian() {
     }
 }
 function clearEirian() {
-    for(var i=0;i<=MAX_EIRIAN_NUM;i++) {
-        ctx.beginPath();
-        ctx.fillStyle="rgb(32,32,32)";
-        ctx.fillRect((eirianX[i]-1)*50+2,(eirianY[i]-1)*50+2,47,47);
-        ctx.closePath();
-        ctx.stroke();
+    if (cursorStatus == 0) {
+        for(var i=0;i<=MAX_EIRIAN_NUM;i++) {
+            if (((eirianX[i] - oldBaseTopX) >= 0) && ((eirianX[i] - oldBaseTopX) < 10)){
+                if (((eirianY[i] - oldBaseTopY) >= 0) && ((eirianY[i] - oldBaseTopY) < 10)){
+                    ctx.beginPath();
+                    ctx.fillStyle="rgb(255,255,255)";
+                    ctx.fillRect((eirianX[i]-oldBaseTopX)*50+2,(eirianY[i]-oldBaseTopY)*50+2,47,47);
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+            }
+        }
     }
 }
 function setEirian() {
@@ -970,8 +1041,12 @@ function setEirian() {
 
     for(var i=0;i<=MAX_EIRIAN_NUM;i++) {
         // エイリアン有効無効フラグが無効(1)の場合は利用中（描画が必要）
-        if (eirianEnabledFlg[i] == 1) {
-            ctx.drawImage(img,(eirianX[i]-1)*50+2,(eirianY[i]-1)*50+2,47,47);
+        if (((eirianX[i] - baseTopX) >= 0) && ((eirianX[i] - baseTopX) < 10)){
+            if (((eirianY[i] - baseTopY) >= 0) && ((eirianY[i] - baseTopY) < 10)){
+                if (eirianEnabledFlg[i] == 1) {
+                    ctx.drawImage(img,(eirianX[i]-baseTopX)*50+2,(eirianY[i]-baseTopY)*50+2,47,47);
+                }
+            }
         }
     }
 }
