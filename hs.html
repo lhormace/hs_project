@@ -119,8 +119,6 @@
     var sideCtx;
     var x_bar_ctx;
     var y_bar_ctx;
-    const TOPX_SIZE = 10;
-    const TOPY_SIZE = 10;
     const MERGIN = 10;
     var pressedKey = 0;
     const CURSOR_START_X = 0;
@@ -178,6 +176,11 @@
     // 盤をクリックして押しっぱなし=1
     // 盤をクリックしていない=0
     var mouseStatus = 0;
+
+    // 枠のサイズ(50,25,12の三段階) 初期値は50
+    var hexSize = 50;
+    var topXsize = 10;
+    var topYsize = 10;
 
     function newMessage(message) {
         messageWindowCtx.beginPath();
@@ -387,8 +390,8 @@
                }
 
             // ゲーム盤の仕切り線（マス目）を作成
-            for(var j = 0; j < TOPX_SIZE; j++){
-                for(var k = 0;k < TOPY_SIZE; k++){
+            for(var j = 0; j < topXsize; j++){
+                for(var k = 0;k < topYsize; k++){
                     drawLeftUp(j, k, 64, 64, 64, MERGIN);
                     drawRightUp(j, k, 64, 64, 64, MERGIN);
                     drawLeftDown(j, k, 64, 64, 64, MERGIN);
@@ -430,13 +433,13 @@
     function drawLeftUp(j, k, r, g, b, mergin){
                     ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
                     ctx.beginPath();
-                    ctx.moveTo(j*50, k*50);
-                    ctx.lineTo(j*50+25, k*50);
+                    ctx.moveTo(j*hexSize, k*hexSize);
+                    ctx.lineTo(j*hexSize + (hexSize/2), k*hexSize);
                     ctx.closePath();
                     ctx.stroke();
                     ctx.beginPath();
-                    ctx.moveTo(j*50, k*50);
-                    ctx.lineTo(j*50, k*50+25);
+                    ctx.moveTo(j*hexSize, k*hexSize);
+                    ctx.lineTo(j*hexSize, k*hexSize+(hexSize/2));
                     ctx.closePath();
                     ctx.stroke();
     }
@@ -445,13 +448,13 @@
     function drawLeftDown(j, k, r, g, b){
                     ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
                     ctx.beginPath();
-                    ctx.moveTo(j*50, k*50+50);
-                    ctx.lineTo(j*50, k*50+25);
+                    ctx.moveTo(j*hexSize, k*hexSize+hexSize);
+                    ctx.lineTo(j*hexSize, k*hexSize+(hexSize/2))	;
                     ctx.closePath();
                     ctx.stroke();
                     ctx.beginPath();
-                    ctx.moveTo(j*50, k*50+50);
-                    ctx.lineTo(j*50+25, k*50+50);
+                    ctx.moveTo(j*hexSize, k*hexSize+hexSize);
+                    ctx.lineTo(j*hexSize+(hexSize/2), k*hexSize+hexSize);
                     ctx.closePath();
                     ctx.stroke();
     }
@@ -460,13 +463,13 @@
     function drawRightUp(j, k, r, g, b){
                     ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
                     ctx.beginPath();
-                    ctx.moveTo(j*50+50, k*50);
-                    ctx.lineTo(j*50+25, k*50);
+                    ctx.moveTo(j*hexSize+hexSize, k*hexSize);
+                    ctx.lineTo(j*hexSize+(hexSize/2), k*hexSize);
                     ctx.closePath();
                     ctx.stroke();
                     ctx.beginPath();
-                    ctx.moveTo(j*50+50, k*50);
-                    ctx.lineTo(j*50+50, k*50+25);
+                    ctx.moveTo(j*hexSize+hexSize, k*hexSize);
+                    ctx.lineTo(j*hexSize+hexSize, k*hexSize+(hexSize/2));
                     ctx.closePath();
                     ctx.stroke();
     }
@@ -475,13 +478,13 @@
     function drawRightDown(j, k, r, g, b){
                     ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
                     ctx.beginPath();
-                    ctx.moveTo(j*50+50, k*50+50);
-                    ctx.lineTo(j*50+25, k*50+50);
+                    ctx.moveTo(j*hexSize+hexSize, k*hexSize+hexSize);
+                    ctx.lineTo(j*hexSize+(hexSize/2), k*hexSize+hexSize);
                     ctx.closePath();
                     ctx.stroke();
                     ctx.beginPath();
-                    ctx.moveTo(j*50+50, k*50+50);
-                    ctx.lineTo(j*50+50, k*50+25);
+                    ctx.moveTo(j*hexSize+hexSize, k*hexSize+hexSize);
+                    ctx.lineTo(j*hexSize+hexSize, k*hexSize+(hexSize/2));
                     ctx.closePath();
                     ctx.stroke();
     }
@@ -502,11 +505,11 @@
         x_bar_ctx.textBaseline = "top";
         for (var i=stNum; i<=edNum; i=i+sumCnt) {
             x_bar_ctx.beginPath();
-            x_bar_ctx.moveTo(cycleCnt*50+21, 0);
-            x_bar_ctx.lineTo(cycleCnt*50+21, 15);
+            x_bar_ctx.moveTo(cycleCnt*hexSize+21, 0);
+            x_bar_ctx.lineTo(cycleCnt*hexSize+21, 15);
             x_bar_ctx.closePath();
             x_bar_ctx.stroke();
-            x_bar_ctx.fillText(cycleCnt + topX, cycleCnt*50+44, 2);
+            x_bar_ctx.fillText(cycleCnt + topX, cycleCnt*hexSize+44, 2);
             cycleCnt++;
             // cycleを超えたらループは強制的に抜ける
             if (cycleCnt >= cycle) {
@@ -533,11 +536,11 @@
         y_bar_ctx.textBaseline = "top";
         for (var i=stNum; i<=edNum; i=i+sumCnt) {
             y_bar_ctx.beginPath();
-            y_bar_ctx.moveTo(0, cycleCnt*50);
-            y_bar_ctx.lineTo(15, cycleCnt*50);
+            y_bar_ctx.moveTo(0, cycleCnt*hexSize);
+            y_bar_ctx.lineTo(15, cycleCnt*hexSize);
             y_bar_ctx.closePath();
             y_bar_ctx.stroke();
-            y_bar_ctx.fillText(cycleCnt + topY, 5, cycleCnt*50+20);
+            y_bar_ctx.fillText(cycleCnt + topY, 5, cycleCnt*hexSize+20);
             cycleCnt++;
             // cycleを超えたらループは強制的に抜ける
             if (cycleCnt >= cycle) {
@@ -572,8 +575,8 @@
         // ルーラーを再計算
         if (mouseStatus == 1) {
             var substrMouseX = whenMouseDownX - whenNowX;
-            if ((substrMouseX < 25) || (substrMouseX > -25)) {
-                movedX = Math.ceil(substrMouseX / 50);
+            if ((substrMouseX < (hexSize / 2)) || (substrMouseX > (hexSize / -2))) {
+                movedX = Math.ceil(substrMouseX / hexSize);
             }
             if (baseTopX + movedX < 0) {
                 movedX = baseTopX * -1;
@@ -583,8 +586,8 @@
             }
 
             var substrMouseY = whenMouseDownY - whenNowY;
-            if ((substrMouseY < 25) || (substrMouseY > -25)) {
-                movedY = Math.ceil(substrMouseY / 50);
+            if ((substrMouseY < (hexSize / 2)) || (substrMouseY > (hexSize / -2))) {
+                movedY = Math.ceil(substrMouseY / hexSize);
             }
             if (baseTopY + movedY < 0) {
                 movedY = baseTopY * -1;
@@ -604,7 +607,7 @@
             if (cursorStatus == 1) {
                 ctx.beginPath();
                 ctx.fillStyle="rgb(255,250,15)";
-                ctx.fillRect((selectedCursorX-1)*50+2,(selectedCursorY-1)*50+2,47,47);
+                ctx.fillRect((selectedCursorX-1) * hexSize + 2,(selectedCursorY-1) * hexSize + 2,hexSize - 3,hexSize - 3);
                 ctx.closePath();
                 ctx.stroke();
             }
@@ -614,22 +617,22 @@
     function getMouseXY(event){
         whenNowX = event.clientX;
         whenNowY = event.clientY;
-        var targetCursorX = Math.floor((whenNowX - 38) / 50) + 1;
-        var targetCursorY = Math.floor((whenNowY - 64) / 50) + 1;
+        var targetCursorX = Math.floor((whenNowX - 38) / hexSize) + 1;
+        var targetCursorY = Math.floor((whenNowY - 64) / hexSize) + 1;
 
         // カーソルを押下した状態かつユニットを選択した状態である
         if (cursorStatus == 1) {
             // 前回反転した色を元に戻す
             ctx.beginPath();
             ctx.fillStyle="rgb(255,255,255)";
-            ctx.fillRect((oldCursorX-1)*50+2,(oldCursorY-1)*50+2,47,47);
+            ctx.fillRect((oldCursorX-1) * hexSize + 2,(oldCursorY-1) * hexSize + 2,hexSize - 3,hexSize - 3);
             ctx.closePath();
             ctx.stroke();
 
             // 画面上を移動したマウスポインタに該当するカーソル位置の色を反転する。
             ctx.beginPath();
             ctx.fillStyle="rgb(128,128,255)";
-            ctx.fillRect((targetCursorX-1)*50+2,(targetCursorY-1)*50+2,47,47);
+            ctx.fillRect((targetCursorX-1) * hexSize + 2,(targetCursorY-1) * hexSize + 2,hexSize - 3,hexSize - 3);
             ctx.closePath();
             ctx.stroke();
 
@@ -647,12 +650,12 @@
         whenMouseUpY = event.clientY;
 
         var substrMouseX = whenMouseDownX - whenMouseUpX;
-        if ((substrMouseX < 25) || (substrMouseX > -25)) {
-            movedX = Math.ceil(substrMouseX / 50);
+        if ((substrMouseX < (hexSize / 2)) || (substrMouseX > (hexSize / -2))) {
+            movedX = Math.ceil(substrMouseX / hexSize);
         }
         var substrMouseY = whenMouseDownY - whenMouseUpY;
-        if ((substrMouseY < 25) || (substrMouseY > -25)) {
-            movedY = Math.ceil(substrMouseY / 50);
+        if ((substrMouseY < (hexSize / 2)) || (substrMouseY > (hexSize / -2))) {
+            movedY = Math.ceil(substrMouseY / hexSize);
         }
 
         baseTopX = baseTopX + movedX;
@@ -685,13 +688,13 @@
         // 移動前のカーソルを消す
         ctx.beginPath();
         ctx.fillStyle="rgb(255,255,255)";
-        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+        ctx.fillRect((nowCursorX-1) * hexSize + 2,(nowCursorY-1) * hexSize + 2,hexSize - 3,hexSize - 3);
         ctx.closePath();
         ctx.stroke();
 
-        var targetCursorX = Math.floor((event.clientX - 38) / 50) + 1;
+        var targetCursorX = Math.floor((event.clientX - 38) / hexSize) + 1;
         whenMouseDownX = event.clientX;
-        var targetCursorY = Math.floor((event.clientY - 64) / 50) + 1;
+        var targetCursorY = Math.floor((event.clientY - 64) / hexSize) + 1;
         whenMouseDownY = event.clientY;
 
         console.log("MOUSE DOWN PRESSED targetCursorX[" + targetCursorX + "] targetCursorY[" + targetCursorY + "] screenX[" + event.screenX + "] screenY[" + event.screenY + "] pageX[" + event.pageX + "] pageY[" + event.pageY + "] clientX[" + event.clientX + "] clientY[" + event.clientY + "] offsetX[" + event.offsetX + "] offsetY[" + event.offsetY + "]");
@@ -770,7 +773,7 @@
                     // 破壊した場合は、カーソルを赤色に描画
                     ctx.beginPath();
                     ctx.fillStyle="rgb(255,32,32)";
-                    ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+                    ctx.fillRect((nowCursorX-1) * hexSize + 2,(nowCursorY-1) * hexSize + 2,hexSize - 3,hexSize - 3);
                     ctx.closePath();
                     ctx.stroke();
                 } else {
@@ -779,14 +782,14 @@
                         // 自軍ユニット未選択状態の場合は、カーソルの色は「黒」でぬりつぶす。
                         ctx.beginPath();
                         ctx.fillStyle="rgb(32,32,32)";
-                        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+                        ctx.fillRect((nowCursorX-1) * hexSize + 2,(nowCursorY-1) * hexSize + 2,hexSize - 3,hexSize - 3);
                         ctx.closePath();
                         ctx.stroke();
-                    } else if (cursorStatus == 1) {
+                    } else if (cursorStatus == 1) {/*  */
                         // 自軍ユニット未選択状態の場合は、カーソルの色は「青」でぬりつぶす。
                         ctx.beginPath();
                         ctx.fillStyle="rgb(32,32,255)";
-                        ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+                        ctx.fillRect((nowCursorX-1) * hexSize + 2,(nowCursorY-1) * hexSize + 2,hexSize - 3,hexSize - 3);
                         ctx.closePath();
                         ctx.stroke();
                     }
@@ -797,14 +800,14 @@
                     // 自軍ユニット未選択状態の場合は、カーソルの色は「黒」でぬりつぶす。
                     ctx.beginPath();
                     ctx.fillStyle="rgb(32,32,32)";
-                    ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+                    ctx.fillRect((nowCursorX-1) * hexSize + 2,(nowCursorY-1) * hexsize + 2,hexSize - 3,hexSize - 3);
                     ctx.closePath();
                     ctx.stroke();
                 } else if (cursorStatus == 1) {
                     // 自軍ユニット未選択状態の場合は、カーソルの色は「青」でぬりつぶす。
                     ctx.beginPath();
                     ctx.fillStyle="rgb(32,32,255)";
-                    ctx.fillRect((nowCursorX-1)*50+2,(nowCursorY-1)*50+2,47,47);
+                    ctx.fillRect((nowCursorX-1) * sizeum + 2,(nowCursorY-1) * hexSize + 2,hexSize - 3,hexSize - 3);
                     ctx.closePath();
                     ctx.stroke();
                 }
@@ -851,7 +854,7 @@
             // 7. カーソルは選択状態ではなくなったので元の色に戻す
              ctx.beginPath();
                ctx.fillStyle="rgb(255,255,255)";
-               ctx.fillRect((selectedCursorX-1)*50+2,(selectedCursorY-1)*50+2,47,47);
+               ctx.fillRect((selectedCursorX - 1) * hexSize + 2,(selectedCursorY - 1) * hexSize + 2, hexSize - 3, hexSize - 3);
                ctx.closePath();
                ctx.stroke();
         }
@@ -925,7 +928,7 @@ function CursorDraw()
     // 移動前のカーソルを消す
     ctx.beginPath();
     ctx.fillStyle="rgb(255,255,255)";
-    ctx.fillRect(nowCursorX*50+2,nowCursorY*50+2,47,47);
+    ctx.fillRect(nowCursorX * hexSize + 2,nowCursorY * hexSize + 2,hexSize - 3,hexSize - 3);
     ctx.closePath();
     ctx.stroke();
 
@@ -953,7 +956,7 @@ function CursorDraw()
     if (cursorStatus == 0) {
     }
     ctx.fillStyle="rgb(32,32,255)";
-    ctx.fillRect(nowCursorX*50+2,nowCursorY*50+2,47,47);
+    ctx.fillRect(nowCursorX * hexSize + 2,nowCursorY * hexSize + 2,hexSize - 3,hexSize - 3);
     ctx.closePath();
     ctx.stroke();
 }
@@ -962,11 +965,11 @@ function clearUnitsAll(){
     // TODO:毎回全部の自軍ユニットを書き直すと重くなるので、必要なものだけを書き直すように設計をしたい。
     if (cursorStatus == 0) {
         for(var i=0;i<NUM;i++) {
-            if (((unitX[i] - oldBaseTopX) >= 0) && ((unitX[i] - oldBaseTopX) < 10)){
-                if (((unitY[i] - oldBaseTopY) >= 0) && ((unitY[i] - oldBaseTopY) < 10)) {
+            if (((unitX[i] - oldBaseTopX) >= 0) && ((unitX[i] - oldBaseTopX) < topXsize)){
+                if (((unitY[i] - oldBaseTopY) >= 0) && ((unitY[i] - oldBaseTopY) < topYsize)) {
                     ctx.beginPath();
                     ctx.fillStyle="rgb(255,255,255)";
-                    ctx.fillRect((unitX[i]-oldBaseTopX)*50+2, (unitY[i]-oldBaseTopY)*50+2,47,47);
+                    ctx.fillRect((unitX[i] - oldBaseTopX) * hexSize + 2, (unitY[i] - oldBaseTopY) * hexSize + 2,hexSize - 3,hexSize - 3);
                     ctx.closePath();
                     ctx.stroke();
                 }
@@ -983,38 +986,46 @@ function setUnitsAll(){
     // TODO:毎回全部の自軍ユニットを書き直すと重くなるので、必要なものだけを書き直すように設計をしたい。
     for(var i=0;i<NUM;i++) {
         var img = new Image();
-        if(unitType[i] == 0){
-            img.src="UNIT_LV01.gif";
-        } else if(unitType[i] == 1){
-            img.src="UNIT_LV02.gif";
-        } else if(unitType[i] == 2){
-            img.src="UNIT_LV03.gif";
-        } else if(unitType[i] == 3){
-            img.src="UNIT_LV02.gif";
-        } else if(unitType[i] == 4){
-            img.src="TUNK_SENSYA_LV01.gif";
-        } else if(unitType[i] == 5){
-            img.src="TUNK_SENSYA_LV02.gif";
-        } else if(unitType[i] == 6){
-            img.src="TUNK_SENSYA_LV03.gif";
-        } else if(unitType[i] == 7){
-            img.src="TUNK_ROCKET_LV01.gif";
-        } else if(unitType[i] == 8){
-            img.src="TUNK_ROCKET_LV02.gif";
-        } else if(unitType[i] == 9){
-            img.src="TUNK_ROCKET_LV03.gif";
-        } else if(unitType[i] == 10){
-            img.src="FIGHTER_LV01.gif";
-        } else if(unitType[i] == 11){
-            img.src="FIGHTER_LV02.gif";
-        } else if(unitType[i] == 12){
-            img.src="FIGHTER_LV03.gif";
+        if (hexSize == 50) {
+            if(unitType[i] == 0){
+                img.src="UNIT_LV01.gif";
+            } else if(unitType[i] == 1){
+                img.src="UNIT_LV02.gif";
+            } else if(unitType[i] == 2){
+                img.src="UNIT_LV03.gif";
+            } else if(unitType[i] == 3){
+                img.src="UNIT_LV02.gif";
+            } else if(unitType[i] == 4){
+                img.src="TUNK_SENSYA_LV01.gif";
+            } else if(unitType[i] == 5){
+                img.src="TUNK_SENSYA_LV02.gif";
+            } else if(unitType[i] == 6){
+                img.src="TUNK_SENSYA_LV03.gif";
+            } else if(unitType[i] == 7){
+                img.src="TUNK_ROCKET_LV01.gif";
+            } else if(unitType[i] == 8){
+                img.src="TUNK_ROCKET_LV02.gif";
+            } else if(unitType[i] == 9){
+                img.src="TUNK_ROCKET_LV03.gif";
+            } else if(unitType[i] == 10){
+                img.src="FIGHTER_LV01.gif";
+            } else if(unitType[i] == 11){
+                img.src="FIGHTER_LV02.gif";
+            } else if(unitType[i] == 12){
+                img.src="FIGHTER_LV03.gif";
+            }
+        } else if (hexSize == 25) {
+            // ヘックスサイズ中用の画像
+
+        } else if (hexSize == 12) {
+            // ヘックスサイズ小用の画像
+
         }
         if ((cursorStatus == 0) || ((cursorStatus == 1) && (selectedUnitNo != i)) ) {
             // カーソルが選択状態では無い場合、もしくは選択状態ではあるが掴んだユニットでは無い場合描画
-            if (((unitX[i] - baseTopX) >= 0) && ((unitX[i] - baseTopX) < 10)){
-                if (((unitY[i] - baseTopY) >= 0) && ((unitY[i] - baseTopY) < 10)) {
-                    ctx.drawImage(img,(unitX[i]-baseTopX)*50+2,(unitY[i]-baseTopY)*50+2,47,47);
+            if (((unitX[i] - baseTopX) >= 0) && ((unitX[i] - baseTopX) < topXsize)){
+                if (((unitY[i] - baseTopY) >= 0) && ((unitY[i] - baseTopY) < topYsize)) {
+                    ctx.drawImage(img,(unitX[i]-baseTopX) * hexSize + 2,(unitY[i] - baseTopY) * hexSize + 2,hexSize - 3,hexSize - 3);
                 }
             }
         }
@@ -1067,14 +1078,16 @@ function createNewEirian() {
         }
     }
 }
+
+// エイリアンをゲーム盤からクリア
 function clearEirian() {
     if (cursorStatus == 0) {
         for(var i=0;i<=MAX_EIRIAN_NUM;i++) {
-            if (((eirianX[i] - oldBaseTopX) >= 0) && ((eirianX[i] - oldBaseTopX) < 10)){
-                if (((eirianY[i] - oldBaseTopY) >= 0) && ((eirianY[i] - oldBaseTopY) < 10)){
+            if (((eirianX[i] - oldBaseTopX) >= 0) && ((eirianX[i] - oldBaseTopX) < topXsize)){
+                if (((eirianY[i] - oldBaseTopY) >= 0) && ((eirianY[i] - oldBaseTopY) < topYsize)){
                     ctx.beginPath();
                     ctx.fillStyle="rgb(255,255,255)";
-                    ctx.fillRect((eirianX[i]-oldBaseTopX)*50+2,(eirianY[i]-oldBaseTopY)*50+2,47,47);
+                    ctx.fillRect((eirianX[i]-oldBaseTopX)*hexSize+2,(eirianY[i]-oldBaseTopY)*hexSize+2,hexSize - 3,hexSize -3);
                     ctx.closePath();
                     ctx.stroke();
                 }
@@ -1089,23 +1102,63 @@ function setEirian() {
 
     for(var i=0;i<=MAX_EIRIAN_NUM;i++) {
         // エイリアン有効無効フラグが無効(1)の場合は利用中（描画が必要）
-        if (((eirianX[i] - baseTopX) >= 0) && ((eirianX[i] - baseTopX) < 10)){
-            if (((eirianY[i] - baseTopY) >= 0) && ((eirianY[i] - baseTopY) < 10)){
+        if (((eirianX[i] - baseTopX) >= 0) && ((eirianX[i] - baseTopX) < topXsize)){
+            if (((eirianY[i] - baseTopY) >= 0) && ((eirianY[i] - baseTopY) < topYsize)){
                 if (eirianEnabledFlg[i] == 1) {
-                    ctx.drawImage(img,(eirianX[i]-baseTopX)*50+2,(eirianY[i]-baseTopY)*50+2,47,47);
+                    ctx.drawImage(img,(eirianX[i]-baseTopX)*hexSize+2,(eirianY[i]-baseTopY)*hexSize+2,hexSize - 3,hexSize - 3);
                 }
             }
         }
     }
 }
 
+// ゲーム盤再描画時の背景画像を地形情報を元に書き換える
 function drawBackGroundImage() {
     var img = new Image();
-    img.src="./background-image-wood01.jpg";
 
-    for(var i=0;i<=TOPX_SIZE;i++) {
-        for(var j=0;j<=TOPY_SIZE;j++){
-            ctx.drawImage(img,i*50+2,j*50+2);
+    for(var i=0;i<=topXsize;i++) {
+        for(var j=0;j<=topYsize;j++){
+            if (map_array[baseTopX+i][baseTopY+j] == 0) {
+                // 森の画像
+                img.src="./background-image-wood01.jpg";
+            } else if (map_array[baseTopX+i][baseTopY+j] == 1) {
+                // 海の画像
+            } else if (map_array[baseTopX+i][baseTopY+j] == 1) {
+                // 山の画像
+            } else if (map_array[baseTopX+i][baseTopY+j] == 1) {
+                // 平野の画像
+            }
+            ctx.drawImage(img,i*hexSize+2,j*hexSize+2);
+        }
+    }
+}
+
+// ヘックスサイズの変更ボタン(大、中、小)押下時
+function hexSizeChange(sizeNum) {
+    hexSize = sizeNum;
+    if (sizeNum == 50) {
+        topXsize = 10;
+        topYsize = 10;
+    } else if (sizeNum == 25) {
+        topXsize = 20;
+        topYsize = 20;
+    } else if (sizeNum == 12) {
+        topXsize = 30;
+        topYsize = 30;
+    }
+    // 再描画
+    hexImageReplace();
+}
+
+// ゲーム盤の再描画
+function hexImageReplace() {
+    // ゲーム盤の仕切り線（マス目）を作成
+    for(var j = 0; j < topXsize; j++){
+        for(var k = 0;k < topYsize; k++){
+            drawLeftUp(j, k, 64, 64, 64, MERGIN);
+            drawRightUp(j, k, 64, 64, 64, MERGIN);
+            drawLeftDown(j, k, 64, 64, 64, MERGIN);
+            drawRightDown(j, k, 64, 64, 64, MERGIN);
         }
     }
 }
@@ -1171,6 +1224,13 @@ function drawBackGroundImage() {
                 </div>
                 <input type="button" name="btn_shikisya" value="指揮車" onClick="javascript:window.open('./shikisya_select.html', '指揮車選択画面', 'width=600, height=500, menubar=no, toolbar=no, location=no, status=no, resizable=no, scrollbars=yes');">
                 <input type="button" name="btn_shikisya" value="将　軍" onClick="javascript:window.open('./syogun_select.html', '将軍選択画面', 'width=600, height=500, menubar=no, toolbar=no, location=no, status=no, resizable=no, scrollbars=yes');">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="button" name="btn_hex_big" value="大" onClick="javascript:hexSizeChange(50);">
+                <input type="button" name="btn_hex_middium" value="中" onClick="javascript:hexSizeChange(25);">
+                <input type="button" name="btn_hex_small" value="小" onClick="javascript:hexSizeChange(12);">
             </td>
         </tr>
     </table>
