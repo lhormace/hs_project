@@ -370,8 +370,8 @@
                     innerWhileCond = true;
                 }
                 while(innerWhileCond) {
-                    unitX[counter] = Math.floor((Math.random() * 10.0)) + 1;
-                    unitY[counter] = Math.floor((Math.random() * 10.0)) + 1;
+                    unitX[counter] = Math.floor((Math.random() * 99.0)) + 1;
+                    unitY[counter] = Math.floor((Math.random() * 99.0)) + 1;
                     unitType[counter] = Math.floor((Math.random() * 12.0)) + 1;
                     if (counter==0) {
                         console.log(counter + " unitX[" + unitX[counter]+ "] unitY[" + unitY[counter] + "] unitType[" + unitType[counter] + "]");
@@ -409,15 +409,13 @@
             // ------------------------------------------------------------
             // イベントリスナーに対応している
             if (document.addEventListener) {
-
-            // キーボードを押したときに実行されるイベント
-            document.addEventListener("keydown" , KeyDownFunc);
-
+                // キーボードを押したときに実行されるイベント
+                document.addEventListener("keydown" , KeyDownFunc);
                 // アタッチイベントに対応している
-            } else if(document.attachEvent) {
 
-            // キーボードを押したときに実行されるイベント
-            document.attachEvent("onkeydown" , KeyDownFunc);
+            } else if(document.attachEvent) {
+                // キーボードを押したときに実行されるイベント
+                document.attachEvent("onkeydown" , KeyDownFunc);
 
             }
 
@@ -494,7 +492,7 @@
         // ルーラーは初期化
         x_bar_ctx.beginPath();
         x_bar_ctx.fillStyle="rgb(255,255,255)";
-        x_bar_ctx.fillRect(0,0,500,15);
+        x_bar_ctx.fillRect(0,0,550,15);
         x_bar_ctx.closePath();
         x_bar_ctx.stroke();
         var cycleCnt = 0;
@@ -509,7 +507,7 @@
             x_bar_ctx.lineTo(cycleCnt*hexSize+21, 15);
             x_bar_ctx.closePath();
             x_bar_ctx.stroke();
-            x_bar_ctx.fillText(cycleCnt + topX, cycleCnt*hexSize+44, 2);
+            x_bar_ctx.fillText(cycleCnt + topX, cycleCnt*hexSize+44 - 10, 2);
             cycleCnt++;
             // cycleを超えたらループは強制的に抜ける
             if (cycleCnt >= cycle) {
@@ -540,7 +538,7 @@
             y_bar_ctx.lineTo(15, cycleCnt*hexSize);
             y_bar_ctx.closePath();
             y_bar_ctx.stroke();
-            y_bar_ctx.fillText(cycleCnt + topY, 5, cycleCnt*hexSize+20);
+            y_bar_ctx.fillText(cycleCnt + topY, 5, cycleCnt*hexSize+20 - 5);
             cycleCnt++;
             // cycleを超えたらループは強制的に抜ける
             if (cycleCnt >= cycle) {
@@ -596,10 +594,22 @@
                 movedY = -10;
             }
 
-            // X座標ルーラーの書き直し
-            xBarWrite(10, 100, 10, 10, 0, 0, 0, baseTopX + movedX);
-            // Y座標ルーラーの書き直し
-            yBarWrite(10, 100, 10, 10, 0, 0, 0, baseTopY + movedY);
+            if(hexSize == 50) {
+                // X座標ルーラーの書き直し
+                xBarWrite(10, 500, 10, 10, 0, 0, 0, baseTopX + movedX);
+                // Y座標ルーラーの書き直し
+                yBarWrite(10, 500, 10, 10, 0, 0, 0, baseTopY + movedY);
+            } else if (hexSize == 25) {
+                // X座標ルーラーの書き直し
+                xBarWrite(10, 500, 10, 20, 0, 0, 0, baseTopX + movedX);
+                // Y座標ルーラーの書き直し
+                yBarWrite(10, 500, 10, 20, 0, 0, 0, baseTopY + movedY);
+            } else if (hexSize == 12) {
+                // X座標ルーラーの書き直し
+                xBarWrite(10, 500, 10, 50, 0, 0, 0, baseTopX + movedX);
+                // Y座標ルーラーの書き直し
+                yBarWrite(10, 500, 10, 50, 0, 0, 0, baseTopY + movedY);
+            }
         }
 
         // マウスが選択状態である場合選択した箇所を黄色に塗りつぶす(消された場合の為に書き直す)
@@ -1016,10 +1026,62 @@ function setUnitsAll(){
             }
         } else if (hexSize == 25) {
             // ヘックスサイズ中用の画像
-
+            if(unitType[i] == 0){
+                img.src="UNIT_LV01.gif";
+            } else if(unitType[i] == 1){
+                img.src="UNIT_LV02.gif";
+            } else if(unitType[i] == 2){
+                img.src="UNIT_LV03.gif";
+            } else if(unitType[i] == 3){
+                img.src="UNIT_LV02.gif";
+            } else if(unitType[i] == 4){
+                img.src="TUNK_SENSYA_LV01.gif";
+            } else if(unitType[i] == 5){
+                img.src="TUNK_SENSYA_LV02.gif";
+            } else if(unitType[i] == 6){
+                img.src="TUNK_SENSYA_LV03.gif";
+            } else if(unitType[i] == 7){
+                img.src="TUNK_ROCKET_LV01.gif";
+            } else if(unitType[i] == 8){
+                img.src="TUNK_ROCKET_LV02.gif";
+            } else if(unitType[i] == 9){
+                img.src="TUNK_ROCKET_LV03.gif";
+            } else if(unitType[i] == 10){
+                img.src="FIGHTER_LV01.gif";
+            } else if(unitType[i] == 11){
+                img.src="FIGHTER_LV02.gif";
+            } else if(unitType[i] == 12){
+                img.src="FIGHTER_LV03.gif";
+            }
         } else if (hexSize == 12) {
             // ヘックスサイズ小用の画像
-
+            if(unitType[i] == 0){
+                img.src="UNIT_LV01.gif";
+            } else if(unitType[i] == 1){
+                img.src="UNIT_LV02.gif";
+            } else if(unitType[i] == 2){
+                img.src="UNIT_LV03.gif";
+            } else if(unitType[i] == 3){
+                img.src="UNIT_LV02.gif";
+            } else if(unitType[i] == 4){
+                img.src="TUNK_SENSYA_LV01.gif";
+            } else if(unitType[i] == 5){
+                img.src="TUNK_SENSYA_LV02.gif";
+            } else if(unitType[i] == 6){
+                img.src="TUNK_SENSYA_LV03.gif";
+            } else if(unitType[i] == 7){
+                img.src="TUNK_ROCKET_LV01.gif";
+            } else if(unitType[i] == 8){
+                img.src="TUNK_ROCKET_LV02.gif";
+            } else if(unitType[i] == 9){
+                img.src="TUNK_ROCKET_LV03.gif";
+            } else if(unitType[i] == 10){
+                img.src="FIGHTER_LV01.gif";
+            } else if(unitType[i] == 11){
+                img.src="FIGHTER_LV02.gif";
+            } else if(unitType[i] == 12){
+                img.src="FIGHTER_LV03.gif";
+            }
         }
         if ((cursorStatus == 0) || ((cursorStatus == 1) && (selectedUnitNo != i)) ) {
             // カーソルが選択状態では無い場合、もしくは選択状態ではあるが掴んだユニットでは無い場合描画
@@ -1050,8 +1112,8 @@ function createNewEirian() {
         if (eirianEnabledFlg[counter] == 0) {
             // データの検査結果が有効ならエイリアン追加するループを抜ける
             outerWhileCond = false;
-            eirianX[counter] = Math.floor((Math.random() * 10.0)) + 1;
-            eirianY[counter] = Math.floor((Math.random() * 10.0)) + 1;
+            eirianX[counter] = Math.floor((Math.random() * 99.0)) + 1;
+            eirianY[counter] = Math.floor((Math.random() * 99.0)) + 1;
 //          eirianType[counter] = Math.floor((Math.random() * 12.0)) + 1;
 
             for(var i = 0; i <= MAX_EIRIAN_NUM; i++){
@@ -1128,7 +1190,7 @@ function drawBackGroundImage() {
             } else if (map_array[baseTopX+i][baseTopY+j] == 1) {
                 // 平野の画像
             }
-            ctx.drawImage(img,i*hexSize+2,j*hexSize+2);
+            ctx.drawImage(img,i*hexSize+2,j*hexSize+2,hexSize-3,hexSize-3);
         }
     }
 }
@@ -1143,11 +1205,28 @@ function hexSizeChange(sizeNum) {
         topXsize = 20;
         topYsize = 20;
     } else if (sizeNum == 12) {
-        topXsize = 30;
-        topYsize = 30;
+        topXsize = 50;
+        topYsize = 50;
+    }
+    if(hexSize == 50) {
+        // X座標ルーラーの書き直し
+        xBarWrite(10, 500, 10, 10, 0, 0, 0, baseTopX);
+        // Y座標ルーラーの書き直し
+        yBarWrite(10, 500, 10, 10, 0, 0, 0, baseTopY);
+    } else if (hexSize == 25) {
+        // X座標ルーラーの書き直し
+        xBarWrite(10, 500, 10, 20, 0, 0, 0, baseTopX);
+        // Y座標ルーラーの書き直し
+        yBarWrite(10, 500, 10, 20, 0, 0, 0, baseTopY);
+    } else if (hexSize == 12) {
+        // X座標ルーラーの書き直し
+        xBarWrite(10, 500, 10, 50, 0, 0, 0, baseTopX);
+        // Y座標ルーラーの書き直し
+        yBarWrite(10, 500, 10, 50, 0, 0, 0, baseTopY);
     }
     // 再描画
     hexImageReplace();
+
 }
 
 // ゲーム盤の再描画
@@ -1175,8 +1254,8 @@ function hexImageReplace() {
             <td>
                 <table border="1" style="width:100%">
                     <tr>
-                        <td style="background-color:#ffffff">
-                            <canvas id="x_bar" height="15" width="500"></canvas>
+                        <td style="background-color:#00ffff">
+                            <canvas id="x_bar" height="15" width="522"></canvas>
                         </td>
                     </tr>
                 </table>
@@ -1186,7 +1265,7 @@ function hexImageReplace() {
             <td>
                 <table border="1">
                     <tr>
-                        <td style="background-color:#ffffff">
+                        <td style="background-color:#00ffff">
                             <canvas id="y_bar" height="500" width="15"></canvas>
                         </td>
                         <td>
